@@ -59,15 +59,6 @@
         .social-btn { width: 55px; height: 55px; border-radius: 18px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.6rem; text-decoration: none; transition: var(--transition); box-shadow: var(--shadow-3d); }
         .social-btn:hover { transform: translateY(-5px) scale(1.1); }
 
-        /* --- PANTALLA DE CARGA PDF (NUEVO) --- */
-        #pdf-loading-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
-            background: rgba(253, 250, 251, 0.98); z-index: 9999999;
-            flex-direction: column; align-items: center; justify-content: center; text-align: center;
-        }
-        #pdf-loading-overlay i { font-size: 3.5rem; color: var(--fucsia); margin-bottom: 20px; }
-        #pdf-loading-overlay h2 { font-family: 'Playfair Display'; font-size: 2rem; color: #1a1a1a; margin-bottom: 10px; }
-
         /* --- CHECKOUT MODAL --- */
         #checkout-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
@@ -211,18 +202,12 @@
 
         /* --- ESTILOS AISLADOS DE LA FACTURA PARA PDF --- */
         #invoice-print-area {
-            /* IMPORTANTE: Ahora la ocultamos con display: none en lugar de top: -9999px */
-            display: none;
-            width: 850px; 
-            background: white;
+            position: absolute; left: -9999px; top: -9999px; width: 850px; background: white;
             --primary: #e6007e; --secondary: #7b2cbf; --accent: #219ebc;
             --dark: #2d3436; --light-pink: #fff5f8; --gold: #d4af37;
             font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
             color: black;
         }
-        
-        #invoice-print-area tr, 
-        #invoice-print-area .summary-section { page-break-inside: avoid; break-inside: avoid; }
 
         #invoice-print-area .invoice-card { background: #ffffff; width: 100%; border-radius: 20px; box-shadow: none; border: 1px solid #eee; overflow: hidden; position: relative; }
         #invoice-print-area .side-accent { position: absolute; top: 0; left: 0; width: 10px; height: 100%; background: linear-gradient(to bottom, var(--primary), var(--secondary), var(--accent)); }
@@ -308,12 +293,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
 </head>
 <body onload="initApp()">
-
-    <div id="pdf-loading-overlay">
-        <i class="fa-solid fa-spinner fa-spin"></i>
-        <h2>Generando Factura Mágica...</h2>
-        <p style="color:#666;">Preparando tu PDF, por favor no cierres esta ventana.</p>
-    </div>
 
     <div id="invoice-print-area">
         <div class="invoice-card">
@@ -632,7 +611,7 @@
             renderTips(); updateBagUI();
         }
 
-        // --- SISTEMA INFALIBLE DE GENERACIÓN DE PDF ---
+        // --- FIX DEFINITIVO DEL PDF ---
         async function generateAndDownloadInvoice(order) {
             document.getElementById('inv-number').innerText = `N° ${order.id}`;
             document.getElementById('inv-date').innerText = `Emisión: ${order.date}`;
@@ -670,53 +649,42 @@
             document.getElementById('inv-total-ves').innerText = `${totalBsCalculado.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs`;
 
             const element = document.getElementById('invoice-print-area');
-            const overlay = document.getElementById('pdf-loading-overlay');
             
-            // 1. Mostramos la pantalla de carga al usuario
-            overlay.style.display = 'flex';
-            
-            // 2. Traemos la factura físicamente a la pantalla pero la hacemos coincidir con la posición actual del scroll
-            element.style.display = 'block';
-            element.style.position = 'absolute';
-            // Poniéndola exactamente en window.scrollY, la cámara tomará la foto perfecta del elemento
-            element.style.top = window.scrollY + 'px';
+            // EL BUG ESTABA AQUÍ: Le decíamos position: relative y left: 0, pero el top seguía en -9999px.
+            // Esto hacía que la factura se fuera al espacio exterior (fuera del canvas de fotos).
+            // Lo corregimos simplemente dándole también un top: 0 a la hora de tomar la foto.
+            element.style.position = 'relative';
             element.style.left = '0';
-            element.style.zIndex = '999990'; // Un número menor al overlay de carga (9999999) para que quede oculta por este
+            element.style.top = '0'; // <- Esta línea soluciona las facturas en blanco
 
             const opt = {
                 margin:       [10, 0, 10, 0],
                 filename:     `Factura_Fanatica_${order.id}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
-                // windowWidth forza a la cámara a usar el ancho de escritorio para que no se corte en móviles
-                // scrollY en la posición exacta asegura que se enfoque en la factura que acabamos de colocar
-                html2canvas:  { scale: 2, useCORS: true, windowWidth: 850, scrollY: window.scrollY },
+                // EL SEGUNDO BUG: Agregar windowWidth: 850 engaña a html2pdf para que SIEMPRE piense
+                // que está en un monitor de PC, evitando que la tabla se rompa o achique en móviles.
+                html2canvas:  { scale: 2, useCORS: true, windowWidth: 850 },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
                 pagebreak:    { mode: 'css', avoid: ['tr', '.summary-section'] }
             };
 
-            // 3. Le damos medio segundo al navegador para que dibuje la factura y luego disparamos la captura
-            return new Promise((resolve) => {
-                setTimeout(async () => {
-                    try {
-                        await html2pdf().set(opt).from(element).save();
-                    } catch(e) {
-                        console.error("Error generando PDF:", e);
-                        alert("Error al generar PDF: " + e.message);
-                    } finally {
-                        // Ocultamos la factura
-                        element.style.display = 'none';
-                        // Quitamos la pantalla de carga
-                        overlay.style.display = 'none';
-                        resolve();
-                    }
-                }, 500); 
-            });
+            try {
+                await html2pdf().set(opt).from(element).save();
+            } catch(e) {
+                console.error("Error generando PDF:", e);
+                alert("Error al generar PDF: " + e.message);
+            } finally {
+                // Devolvemos ambos valores a negativo para ocultarla bien
+                element.style.position = 'absolute';
+                element.style.left = '-9999px';
+                element.style.top = '-9999px'; 
+            }
         }
 
-        async function generateInvoiceFromAdmin(orderId) {
+        function generateInvoiceFromAdmin(orderId) {
             const order = orders.find(o => o.id === orderId);
             if(order) {
-                await generateAndDownloadInvoice(order);
+                generateAndDownloadInvoice(order);
             }
         }
         // --- FIN SISTEMA PDF ---
@@ -765,7 +733,6 @@
                 orders.unshift(newOrder); 
                 db.ref('ordersDB').set(orders); 
 
-                // Esperamos pacientemente a que la pantalla de carga y el PDF terminen
                 await generateAndDownloadInvoice(newOrder);
 
                 const message = `¡Hola Fanática! 🦋 Soy ${name} ${lastName}.\nAcabo de realizar un pedido en la web.\n\n*Pedido:* #${orderID}\n\nTe envío mi factura en PDF por aquí para concretar el pago. ¡Gracias!`;
