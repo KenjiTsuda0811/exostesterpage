@@ -192,40 +192,52 @@
         }
 
         /* =========================================
-           ESTILOS DE LA NUEVA FACTURA (OCULTA PARA AUTO-GUARDADO)
+           ESTILOS DE LA NUEVA FACTURA (BLINDADA PARA EL PDF)
            ========================================= */
         #invoice-print-area { 
             position: absolute; 
             left: -9999px; 
-            top: -9999px; 
-            width: 850px; /* Ancho fijo para que no se deforme al crear el PDF */
+            top: 0; 
+            width: 800px !important; /* Bloqueado para que el móvil no lo aplaste */
             background: white; 
+            z-index: -1; /* Oculto por defecto */
         }
         
         .factura-container {
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            width: 100%; background: white; padding: 60px;
-            color: var(--text-dark); position: relative;
+            width: 800px !important; /* Bloqueado para siempre */
+            background: white; 
+            padding: 50px;
+            color: var(--text-dark); 
+            position: relative;
+            box-sizing: border-box;
         }
         .factura-container::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 10px; background: linear-gradient(90deg, var(--magenta), #ff66b2); }
+        
+        /* Uso de FLEX en lugar de GRID para mayor compatibilidad con html2canvas */
         .inv-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 50px; }
         .brand-box { display: flex; flex-direction: column; gap: 10px; }
         .logo-letras { height: 70px; width: auto; object-fit: contain; }
         .logo-icono { height: 100px; opacity: 0.1; position: absolute; right: 20px; top: 40px; transform: rotate(-15deg); }
         .invoice-title { text-align: right; }
         .invoice-title h1 { margin: 0; color: var(--magenta); font-size: 2.2em; letter-spacing: -1px; text-transform: uppercase; }
-        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 40px; padding: 25px; background-color: var(--magenta-light); border-radius: 12px; }
+        
+        .info-grid { display: flex; justify-content: space-between; gap: 40px; margin-bottom: 40px; padding: 25px; background-color: var(--magenta-light); border-radius: 12px; box-sizing: border-box; }
+        .info-block { width: 50%; }
         .info-block h4 { margin: 0 0 10px 0; text-transform: uppercase; font-size: 0.85em; color: var(--magenta); letter-spacing: 1px; }
         .info-block p { margin: 0; line-height: 1.5; font-size: 0.95em; }
+        
         .inv-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
         .inv-table th { text-align: left; padding: 15px; border-bottom: 2px solid var(--magenta); color: var(--text-dark); font-size: 0.9em; text-transform: uppercase; }
         .inv-table td { padding: 18px 15px; border-bottom: 1px solid var(--border); font-size: 1em; }
         .col-desc { width: 50%; } .col-qty { width: 10%; text-align: center; } .col-price { width: 20%; text-align: right; } .col-total { width: 20%; text-align: right; font-weight: 600; }
+        
         .summary-container { display: flex; justify-content: flex-end; }
         .summary-box { width: 250px; }
         .summary-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
         .summary-row.grand-total { border-bottom: none; color: var(--magenta); font-size: 1.5em; font-weight: bold; margin-top: 10px; }
-        .inv-footer { margin-top: 60px; padding-top: 30px; border-top: 1px solid var(--border); text-align: center; }
+        
+        .inv-footer { margin-top: 50px; padding-top: 30px; border-top: 1px solid var(--border); text-align: center; }
         .inv-footer p { color: var(--text-muted); font-size: 0.9em; margin: 5px 0; }
         .stamp { display: inline-block; margin-top: 20px; padding: 10px 20px; border: 2px dashed #ddd; border-radius: 8px; color: #ddd; font-weight: bold; transform: rotate(-5deg); }
     </style>
@@ -257,7 +269,7 @@
                     <p>Casco central, Maracaibo, Venezuela.</p>
                     <p>Tel: 0412-0661842</p>
                 </div>
-                <div class="info-block" style="border-left: 1px solid rgba(230,0,126,0.1); padding-left: 40px;">
+                <div class="info-block" style="border-left: 1px solid rgba(230,0,126,0.1); padding-left: 40px; box-sizing: border-box;">
                     <h4>Facturado a:</h4>
                     <p><strong id="print-client-name">Nombre del Cliente</strong></p>
                     <p id="print-client-phone">Teléfono: </p>
@@ -546,7 +558,7 @@
         }
 
         /* =========================================
-           LÓGICA AUTOMÁTICA DE HTML2PDF CORREGIDA
+           LÓGICA BLINDADA PARA PDF EN MÓVILES
            ========================================= */
         async function generateAndDownloadInvoice(order) {
             // Llenar datos de la factura
@@ -584,33 +596,35 @@
             document.getElementById('print-total').innerText = `${totalBsCalculado.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs`;
 
             const element = document.getElementById('invoice-print-area');
+            const originalOverflow = document.body.style.overflowX;
             
-            // EL TRUCO VITAL PARA MÓVILES: 
-            // Posicionamos el contenedor al inicio absoluto (top 0, left 0)
-            // de esta manera la cámara tomará la captura desde arriba sin perder partes.
-            element.style.position = 'relative';
+            // EL TRUCO PROFESIONAL: 
+            // 1. Quitamos temporalmente cualquier recorte del teléfono (overflowX visible).
+            // 2. Posicionamos la factura justo por debajo de la pantalla modal actual (z-index 2999).
+            document.body.style.overflowX = 'visible';
+            element.style.position = 'absolute';
             element.style.left = '0';
             element.style.top = '0';
+            element.style.zIndex = '2999';
 
             const opt = {
-                margin:       0,
+                margin:       10, // Margen blanco seguro
                 filename:     `Factura_${order.id}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
-                // Engañamos al sistema diciéndole que su ancho de ventana es 850px siempre
-                html2canvas:  { scale: 2, useCORS: true, windowWidth: 850, scrollY: 0 },
-                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+                // windowWidth 800 asegura que tome la foto como si estuviera en una PC siempre
+                html2canvas:  { scale: 2, useCORS: true, windowWidth: 800 },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
             try {
                 await html2pdf().set(opt).from(element).save();
             } catch(e) {
                 console.error("Error generando PDF:", e);
-                alert("Error al guardar PDF: " + e.message);
             } finally {
-                // Volvemos a ocultar la factura en la lejanía
-                element.style.position = 'absolute';
+                // Restauramos todo a la normalidad para que el usuario no note nada
                 element.style.left = '-9999px';
-                element.style.top = '-9999px';
+                element.style.zIndex = '-1';
+                document.body.style.overflowX = originalOverflow || 'hidden';
             }
         }
 
@@ -669,10 +683,8 @@
                 // Ejecutamos la descarga auto-mágica
                 await generateAndDownloadInvoice(newOrder);
 
-                // Mensaje mejorado
-                const totalString = totalVES.toLocaleString('es-VE', {minimumFractionDigits: 2});
-                const message = `¡Hola Fanática de la belleza! 🦋\nSoy *${name} ${lastName}*.\n\nEste es el número de mi pedido: *#${orderID}*\nPor un total de: *${totalString} Bs*\n\nQuedo atento/a para realizar el pago y enviar el comprobante. ¡Gracias! ✨`;
-                
+                // Mensaje exacto solicitado por ti
+                const message = `Hola Fanatica de la belleza, soy *${name} ${lastName}*, este es el numero de mi pedido "*#${orderID}*", quedo atento/a para pagar`;
                 const waLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 
                 bag = []; updateBagUI();
