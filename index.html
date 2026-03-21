@@ -7,8 +7,6 @@
     <link rel="icon" href="index.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
         :root {
@@ -18,6 +16,13 @@
             --cream: #fdfafb;
             --shadow-3d: 0 15px 45px rgba(0,0,0,0.06), 0 5px 15px rgba(0,0,0,0.04);
             --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            
+            /* Variables de la nueva factura */
+            --magenta: #e6007e;
+            --magenta-light: #fff0f7;
+            --text-dark: #2c3e50;
+            --text-muted: #7f8c8d;
+            --border: #f0f0f0;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -82,56 +87,15 @@
         .tip-card:hover { transform: translateY(-10px); border-color: var(--fucsia); }
         .tip-card i { font-size: 2rem; color: var(--fucsia); margin-bottom: 20px; }
 
-        /* --- DISEÑO DE CATEGORÍAS Y PRODUCTOS (DIVIDIDO) --- */
-        .store-wrapper { 
-            padding: 20px 8% 80px; 
-            display: grid; 
-            grid-template-columns: 250px 1fr; 
-            gap: 40px; 
-            align-items: start; 
-        }
-        .category-sidebar { 
-            background: white; 
-            padding: 30px 20px; 
-            border-radius: 25px; 
-            box-shadow: var(--shadow-3d); 
-            position: sticky; 
-            top: 130px; 
-            z-index: 10; 
-        }
-        #category-list { 
-            display: flex; 
-            flex-direction: column; 
-            gap: 8px; 
-        }
-        .cat-btn { 
-            text-align: left; 
-            background: transparent; 
-            border: none; 
-            padding: 12px 15px; 
-            border-radius: 12px; 
-            font-family: 'Outfit'; 
-            font-size: 1rem; 
-            color: #555; 
-            cursor: pointer; 
-            transition: var(--transition); 
-        }
-        .cat-btn:hover { 
-            background: rgba(230,0,126,0.05); 
-            color: var(--fucsia); 
-        }
-        .cat-btn.active { 
-            background: var(--fucsia); 
-            color: white; 
-            font-weight: bold; 
-            box-shadow: 0 4px 15px rgba(230,0,126,0.3); 
-        }
+        /* --- DISEÑO DE CATEGORÍAS Y PRODUCTOS --- */
+        .store-wrapper { padding: 20px 8% 80px; display: grid; grid-template-columns: 250px 1fr; gap: 40px; align-items: start; }
+        .category-sidebar { background: white; padding: 30px 20px; border-radius: 25px; box-shadow: var(--shadow-3d); position: sticky; top: 130px; z-index: 10; }
+        #category-list { display: flex; flex-direction: column; gap: 8px; }
+        .cat-btn { text-align: left; background: transparent; border: none; padding: 12px 15px; border-radius: 12px; font-family: 'Outfit'; font-size: 1rem; color: #555; cursor: pointer; transition: var(--transition); }
+        .cat-btn:hover { background: rgba(230,0,126,0.05); color: var(--fucsia); }
+        .cat-btn.active { background: var(--fucsia); color: white; font-weight: bold; box-shadow: 0 4px 15px rgba(230,0,126,0.3); }
 
-        .product-section { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); 
-            gap: 30px; 
-        }
+        .product-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 30px; }
         .product-card { background: white; border-radius: 35px; padding: 30px; transition: var(--transition); border: 1px solid rgba(0,0,0,0.02); text-align: center; box-shadow: var(--shadow-3d); position: relative; }
         .product-card:hover { transform: translateY(-10px); }
         .img-container { width: 100%; height: 300px; background: #fafafa; border-radius: 25px; margin-bottom: 25px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
@@ -141,15 +105,13 @@
 
         /* --- BOLSA --- */
         #side-bag {
-            position: fixed; top: 0; right: -450px; width: 420px; 
-            height: 100vh; height: 100dvh; 
+            position: fixed; top: 0; right: -450px; width: 420px; height: 100vh; height: 100dvh; 
             background: white; z-index: 2000; transition: var(--transition);
             box-shadow: -20px 0 60px rgba(0,0,0,0.1); padding: 40px; display: flex; flex-direction: column;
         }
         #side-bag.open { right: 0; }
         .btn-continue { background: none; border: 1px solid #ddd; color: #888; padding: 10px 20px; border-radius: 50px; cursor: pointer; font-size: 0.8rem; transition: 0.3s; margin-bottom: 20px; width: fit-content; font-weight: bold;}
         .btn-continue:hover { border-color: var(--fucsia); color: var(--fucsia); background: var(--cream); }
-        
         .qty-btn { padding: 2px 10px; border: 1px solid #ddd; background: white; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.2s;}
         .qty-btn:hover { border-color: var(--fucsia); color: var(--fucsia); }
 
@@ -200,42 +162,6 @@
         .admin-inp-login { background: #222; border: 1px solid #333; color: white; padding: 15px; width: 100%; border-radius: 12px; margin-bottom: 15px; font-family: 'Outfit'; outline: none; }
         .admin-inp-login:focus { border-color: var(--fucsia); }
 
-        /* --- ESTILOS AISLADOS DE LA FACTURA PARA PDF --- */
-        #invoice-print-area {
-            position: absolute; left: -9999px; top: -9999px; width: 850px; background: white;
-            --primary: #e6007e; --secondary: #7b2cbf; --accent: #219ebc;
-            --dark: #2d3436; --light-pink: #fff5f8; --gold: #d4af37;
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            color: black;
-        }
-
-        #invoice-print-area .invoice-card { background: #ffffff; width: 100%; border-radius: 20px; box-shadow: none; border: 1px solid #eee; overflow: hidden; position: relative; }
-        #invoice-print-area .side-accent { position: absolute; top: 0; left: 0; width: 10px; height: 100%; background: linear-gradient(to bottom, var(--primary), var(--secondary), var(--accent)); }
-        #invoice-print-area .content { padding: 50px; }
-        #invoice-print-area .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 50px; }
-        #invoice-print-area .brand-section img { max-width: 280px; filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.05)); }
-        #invoice-print-area .invoice-meta { text-align: right; }
-        #invoice-print-area .invoice-meta h1 { margin: 0; font-size: 35px; letter-spacing: 4px; color: var(--secondary); text-transform: uppercase; font-weight: 300; }
-        #invoice-print-area .invoice-number { color: var(--primary); font-weight: bold; font-size: 1.2em; }
-        #invoice-print-area .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 40px; border-bottom: 1px solid #eee; padding-bottom: 30px; }
-        #invoice-print-area .info-label { text-transform: uppercase; font-size: 0.75rem; font-weight: 700; color: #a0a0a0; margin-bottom: 10px; display: block; letter-spacing: 1px; }
-        #invoice-print-area .info-value { font-size: 1rem; color: var(--dark); line-height: 1.5; }
-        #invoice-print-area table { width: 100%; border-collapse: separate; border-spacing: 0 10px; margin-bottom: 30px; }
-        #invoice-print-area th { background-color: transparent; color: var(--secondary); text-align: left; padding: 15px; font-size: 0.8rem; text-transform: uppercase; border-bottom: 2px solid var(--light-pink); }
-        #invoice-print-area td { padding: 20px 15px; background-color: var(--light-pink); border: none; }
-        #invoice-print-area td:first-child { border-radius: 10px 0 0 10px; }
-        #invoice-print-area td:last-child { border-radius: 0 10px 10px 0; }
-        #invoice-print-area .product-name { font-weight: 600; color: var(--dark); display: block; }
-        #invoice-print-area .summary-section { display: flex; justify-content: flex-end; margin-top: 20px; }
-        #invoice-print-area .summary-box { width: 300px; background: #f0f0f0 !important; color: black !important; padding: 25px; border-radius: 15px; }
-        #invoice-print-area .summary-row { display: flex; justify-content: space-between; margin-bottom: 10px; }
-        #invoice-print-area .total-row { margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(0,0,0,0.1); font-size: 1.5rem; font-weight: bold; color: var(--primary); }
-        #invoice-print-area .footer { text-align: center; background: #fafafa; padding: 40px; border-radius: 0 0 20px 20px; }
-        #invoice-print-area .thanks-msg { font-family: 'Cursive', serif; font-size: 1.4rem; color: var(--secondary); margin-bottom: 25px; }
-        #invoice-print-area .social-bar { display: flex; justify-content: center; gap: 30px; }
-        #invoice-print-area .social-item { text-decoration: none; color: var(--dark); font-size: 0.85rem; display: flex; align-items: center; gap: 8px; }
-        #invoice-print-area .social-item strong { color: var(--primary); }
-
         /* --- CORRECCIÓN RESPONSIVA PARA TELÉFONOS --- */
         @media (max-width: 768px) {
             header { padding: 12px 5%; }
@@ -244,47 +170,68 @@
             .cart-trigger { font-size: 1.6rem; }
             .tips-section { padding: 130px 6% 30px; }
             .tips-section h2 { font-size: 2.2rem !important; }
-            
-            /* Ajustes Menú de Categorías Móvil */
             .store-wrapper { grid-template-columns: 1fr; gap: 20px; padding: 10px 6% 60px; }
-            .category-sidebar { 
-                position: relative; 
-                top: 0; 
-                padding: 10px 15px; 
-                display: flex; 
-                overflow-x: auto; 
-                border-radius: 15px; 
-                box-shadow: none; 
-                background: transparent; 
-            }
+            .category-sidebar { position: relative; top: 0; padding: 10px 15px; display: flex; overflow-x: auto; border-radius: 15px; box-shadow: none; background: transparent; }
             #category-list { flex-direction: row; gap: 10px; width: max-content; }
             .category-sidebar h3 { display: none; } 
-            .cat-btn { 
-                padding: 10px 20px; 
-                border: 1px solid rgba(230,0,126,0.3); 
-                background: white; 
-                border-radius: 50px; 
-                white-space: nowrap; 
-            }
-            .cat-btn.active { 
-                background: var(--fucsia); 
-                color: white; 
-                box-shadow: 0 4px 10px rgba(230,0,126,0.3); 
-            }
+            .cat-btn { padding: 10px 20px; border: 1px solid rgba(230,0,126,0.3); background: white; border-radius: 50px; white-space: nowrap; }
+            .cat-btn.active { background: var(--fucsia); color: white; box-shadow: 0 4px 10px rgba(230,0,126,0.3); }
             .category-sidebar::-webkit-scrollbar { display: none; }
             .category-sidebar { -ms-overflow-style: none; scrollbar-width: none; }
-
             .product-section { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; }
             .img-container { height: 200px; }
             .product-card h3 { font-size: 1.2rem !important; }
             .product-card p { font-size: 1.3rem !important; margin: 10px 0 !important; }
             .btn-luxury { padding: 12px 20px; font-size: 0.75rem; }
-            
             #side-bag { width: 100vw; right: -100vw; padding: 25px 25px 120px 25px; }
-            
             .admin-grid { grid-template-columns: 1fr; }
             .social-aside { left: 10px; bottom: 10px; gap: 10px; }
             .social-btn { width: 45px; height: 45px; font-size: 1.3rem; border-radius: 12px; }
+        }
+
+        /* =========================================
+           ESTILOS DE LA NUEVA FACTURA (NATIVA)
+           ========================================= */
+        #invoice-print-area { display: none; /* Oculto en la web normal */ }
+        
+        .factura-container {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            max-width: 850px; margin: auto; background: white; padding: 60px;
+            border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            position: relative; overflow: hidden; color: var(--text-dark);
+        }
+        .factura-container::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 6px; background: linear-gradient(90deg, var(--magenta), #ff66b2); }
+        .inv-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 50px; }
+        .brand-box { display: flex; flex-direction: column; gap: 10px; }
+        .logo-letras { height: 70px; width: auto; object-fit: contain; }
+        .logo-icono { height: 100px; opacity: 0.1; position: absolute; right: -20px; top: 40px; transform: rotate(-15deg); }
+        .invoice-title { text-align: right; }
+        .invoice-title h1 { margin: 0; color: var(--magenta); font-size: 2.2em; letter-spacing: -1px; text-transform: uppercase; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 40px; padding: 25px; background-color: var(--magenta-light); border-radius: 12px; }
+        .info-block h4 { margin: 0 0 10px 0; text-transform: uppercase; font-size: 0.85em; color: var(--magenta); letter-spacing: 1px; }
+        .info-block p { margin: 0; line-height: 1.5; font-size: 0.95em; }
+        .inv-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        .inv-table th { text-align: left; padding: 15px; border-bottom: 2px solid var(--magenta); color: var(--text-dark); font-size: 0.9em; text-transform: uppercase; }
+        .inv-table td { padding: 18px 15px; border-bottom: 1px solid var(--border); font-size: 1em; }
+        .col-desc { width: 50%; } .col-qty { width: 10%; text-align: center; } .col-price { width: 20%; text-align: right; } .col-total { width: 20%; text-align: right; font-weight: 600; }
+        .summary-container { display: flex; justify-content: flex-end; }
+        .summary-box { width: 250px; }
+        .summary-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
+        .summary-row.grand-total { border-bottom: none; color: var(--magenta); font-size: 1.5em; font-weight: bold; margin-top: 10px; }
+        .inv-footer { margin-top: 60px; padding-top: 30px; border-top: 1px solid var(--border); text-align: center; }
+        .inv-footer p { color: var(--text-muted); font-size: 0.9em; margin: 5px 0; }
+        .stamp { display: inline-block; margin-top: 20px; padding: 10px 20px; border: 2px dashed #ddd; border-radius: 8px; color: #ddd; font-weight: bold; transform: rotate(-5deg); }
+
+        /* MAGIA PURA: Configuración exclusiva para impresión nativa */
+        @media print {
+            /* Ocultar toda la web, overlays, botones y paneles */
+            body > *:not(#invoice-print-area) { display: none !important; }
+            
+            /* Mostrar únicamente la factura, quitando márgenes del sistema */
+            #invoice-print-area { display: block !important; width: 100%; margin: 0; padding: 0; }
+            body { background: white; padding: 0; margin: 0; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            .factura-container { box-shadow: none; border-radius: 0; padding: 20px; max-width: 100%; }
+            .factura-container::before { height: 10px; }
         }
     </style>
 
@@ -295,74 +242,68 @@
 <body onload="initApp()">
 
     <div id="invoice-print-area">
-        <div class="invoice-card">
-            <div class="side-accent"></div>
-            <div class="content">
-                <div class="header">
-                    <div class="brand-section">
-                        <img src="logo f.png" alt="Fanática de la Belleza">
-                    </div>
-                    <div class="invoice-meta">
-                        <h1>Factura</h1>
-                        <span class="invoice-number" id="inv-number">N° 000000</span><br>
-                        <small id="inv-date">Emisión: --</small>
-                    </div>
+        <div class="factura-container">
+            <img src="Logo-Fanaticadelabelleza.png" alt="" class="logo-icono">
+            <div class="inv-header">
+                <div class="brand-box">
+                    <img src="logo f.png" alt="Fanática de la Belleza" class="logo-letras">
+                    <p style="margin:0; font-size: 0.85em; color: var(--text-muted);">RIF: J-40536612-5</p>
                 </div>
-
-                <div class="details-grid">
-                    <div class="billing-info">
-                        <span class="info-label">Cliente</span>
-                        <div class="info-value">
-                            <strong id="inv-client-name">Nombre del Cliente</strong><br>
-                            <span id="inv-client-phone">Teléfono</span><br>
-                            Venezuela
-                        </div>
-                    </div>
-                    <div class="shipping-info" style="text-align: right;">
-                        <img src="Logo-Fanaticadelabelleza.png" alt="Icon" style="height: 60px; opacity: 0.8;">
-                    </div>
+                <div class="invoice-title">
+                    <h1>FACTURA</h1>
+                    <p id="print-order-id" style="margin:5px 0 0 0; color: var(--text-muted); font-weight: bold;">PEDIDO #</p>
                 </div>
+            </div>
 
-                <table>
-                    <thead>
-                        <tr>
-                            <th style="width: 10%;">Cant.</th>
-                            <th style="width: 50%;">Descripción del Producto</th>
-                            <th style="width: 20%; text-align: right;">Precio Unit.</th>
-                            <th style="width: 20%; text-align: right;">Total</th>
-                        </tr>
-                    </thead>
-                    <tbody id="inv-items-body">
-                        </tbody>
-                </table>
+            <div class="info-grid">
+                <div class="info-block">
+                    <h4>Emitido por:</h4>
+                    <p><strong>Fanática de la Belleza</strong></p>
+                    <p>Casco central, Maracaibo, Venezuela.</p>
+                    <p>Tel: 0412-0661842</p>
+                </div>
+                <div class="info-block" style="border-left: 1px solid rgba(230,0,126,0.1); padding-left: 40px;">
+                    <h4>Facturado a:</h4>
+                    <p><strong id="print-client-name">Nombre del Cliente</strong></p>
+                    <p id="print-client-phone">Teléfono: </p>
+                    <p id="print-date">Fecha de emisión: </p>
+                </div>
+            </div>
 
-                <div class="summary-section">
-                    <div class="summary-box">
-                        <div class="summary-row">
-                            <span>Subtotal</span>
-                            <span id="inv-subtotal">0.00 Bs</span>
-                        </div>
-                        <div class="summary-row">
-                            <span>Envío</span>
-                            <span>0.00 Bs</span>
-                        </div>
-                        <div class="total-row" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(0,0,0,0.1); font-size: 1.5rem; font-weight: bold; color: var(--primary);">
-                            <span>Total (VES)</span>
-                            <span id="inv-total-ves">0.00 Bs</span>
-                        </div>
+            <table class="inv-table">
+                <thead>
+                    <tr>
+                        <th class="col-desc">Descripción</th>
+                        <th class="col-qty">Cant.</th>
+                        <th class="col-price">Precio (Bs)</th>
+                        <th class="col-total">Total (Bs)</th>
+                    </tr>
+                </thead>
+                <tbody id="print-items-body">
+                    </tbody>
+            </table>
+
+            <div class="summary-container">
+                <div class="summary-box">
+                    <div class="summary-row">
+                        <span>Sub-Total</span>
+                        <span id="print-subtotal"></span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Descuento</span>
+                        <span>0,00 Bs</span>
+                    </div>
+                    <div class="summary-row grand-total">
+                        <span>TOTAL</span>
+                        <span id="print-total"></span>
                     </div>
                 </div>
             </div>
 
-            <div class="footer">
-                <div class="thanks-msg">"Porque una fanática de la belleza siempre brilla..."</div>
-                <p style="font-size: 0.9rem; color: #777; margin-bottom: 25px;">Gracias por tu compra. Esperamos verte pronto de nuevo.</p>
-                
-                <div class="social-bar">
-                    <a class="social-item"><strong>IG</strong> @fanaticabeauty</a>
-                    <a class="social-item"><strong>TikTok</strong> @Fanaticadelabelleza</a>
-                    <a class="social-item"><strong>WA</strong> +58 412 0661842</a>
-                </div>
+            <div class="inv-footer">
+                <p>¡Gracias por tu confianza! Eres nuestra prioridad.</p>
+                <p><em>La factura física será entregada por la empresa.</em></p>
+                <div class="stamp">DOCUMENTO DIGITAL</div>
             </div>
         </div>
     </div>
@@ -381,7 +322,7 @@
         <div class="checkout-box">
             <h2 style="font-family:'Playfair Display'; font-size:1.8rem; margin-bottom:10px;">Casi tuyo</h2>
             <p style="color:#666; font-size:0.9rem; margin-bottom:15px;">Ingresa tus datos para generar tu pedido y atenderte vía WhatsApp.</p>
-            <p style="color: var(--fucsia); font-size: 0.85rem; margin-bottom: 25px; font-weight: bold;"><i class="fa-solid fa-file-pdf"></i> Su factura se guardará en pdf automáticamente en su dispositivo.</p>
+            <p style="color: var(--fucsia); font-size: 0.85rem; margin-bottom: 25px; font-weight: bold;"><i class="fa-solid fa-file-pdf"></i> Su factura se generará lista para imprimir o guardar en PDF.</p>
             
             <input type="text" id="c-name" class="checkout-input" placeholder="Nombre">
             <input type="text" id="c-lastname" class="checkout-input" placeholder="Apellido">
@@ -450,8 +391,7 @@
         <div class="store-wrapper">
             <aside class="category-sidebar">
                 <h3 style="font-family:'Playfair Display'; font-size:1.6rem; margin-bottom: 20px; color: var(--fucsia);">Categorías</h3>
-                <div id="category-list">
-                    </div>
+                <div id="category-list"></div>
             </aside>
 
             <div class="main-store-area">
@@ -459,7 +399,6 @@
                     <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: var(--fucsia); font-size: 1.2rem;"></i>
                     <input type="text" id="searchInput" onkeyup="filterProducts()" placeholder="Buscar por nombre o código del producto..." style="width: 100%; padding: 15px 20px 15px 50px; border-radius: 30px; border: 1px solid rgba(230,0,126,0.3); outline: none; font-family: 'Outfit'; font-size: 1rem; box-shadow: var(--shadow-3d); transition: var(--transition);">
                 </div>
-
                 <section class="product-section" id="store-grid"></section>
             </div>
         </div>
@@ -611,12 +550,15 @@
             renderTips(); updateBagUI();
         }
 
-        // --- FIX DEFINITIVO DEL PDF ---
-        async function generateAndDownloadInvoice(order) {
-            document.getElementById('inv-number').innerText = `N° ${order.id}`;
-            document.getElementById('inv-date').innerText = `Emisión: ${order.date}`;
-            document.getElementById('inv-client-name').innerText = order.client;
-            document.getElementById('inv-client-phone').innerText = `Teléfono: ${order.phone}`;
+        /* =========================================
+           LÓGICA DE IMPRESIÓN NATIVA 
+           ========================================= */
+        function triggerNativePrint(order) {
+            // Llenar datos de la factura
+            document.getElementById('print-order-id').innerText = `PEDIDO #${order.id}`;
+            document.getElementById('print-client-name').innerText = order.client;
+            document.getElementById('print-client-phone').innerText = `Teléfono: ${order.phone}`;
+            document.getElementById('print-date').innerText = `Fecha de emisión: ${order.date}`;
             
             let totalUSDOriginal = 0;
             if (order.itemsList && order.itemsList.length > 0) {
@@ -634,60 +576,28 @@
                 
                 itemsHtml += `
                     <tr>
-                        <td>${item.quantity < 10 ? '0'+item.quantity : item.quantity}</td>
-                        <td>
-                            <span class="product-name">${item.name}</span>
-                        </td>
-                        <td style="text-align: right;">${precioUnidadBs.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs</td>
-                        <td style="text-align: right;">${itemTotalBs.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs</td>
+                        <td class="col-desc">${item.name}</td>
+                        <td class="col-qty">${item.quantity}</td>
+                        <td class="col-price">${precioUnidadBs.toLocaleString('es-VE', {minimumFractionDigits: 2})}</td>
+                        <td class="col-total">${itemTotalBs.toLocaleString('es-VE', {minimumFractionDigits: 2})}</td>
                     </tr>
                 `;
             });
             
-            document.getElementById('inv-items-body').innerHTML = itemsHtml;
-            document.getElementById('inv-subtotal').innerText = `${totalBsCalculado.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs`;
-            document.getElementById('inv-total-ves').innerText = `${totalBsCalculado.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs`;
+            document.getElementById('print-items-body').innerHTML = itemsHtml;
+            document.getElementById('print-subtotal').innerText = `${totalBsCalculado.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs`;
+            document.getElementById('print-total').innerText = `${totalBsCalculado.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs`;
 
-            const element = document.getElementById('invoice-print-area');
-            
-            // EL BUG ESTABA AQUÍ: Le decíamos position: relative y left: 0, pero el top seguía en -9999px.
-            // Esto hacía que la factura se fuera al espacio exterior (fuera del canvas de fotos).
-            // Lo corregimos simplemente dándole también un top: 0 a la hora de tomar la foto.
-            element.style.position = 'relative';
-            element.style.left = '0';
-            element.style.top = '0'; // <- Esta línea soluciona las facturas en blanco
-
-            const opt = {
-                margin:       [10, 0, 10, 0],
-                filename:     `Factura_Fanatica_${order.id}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                // EL SEGUNDO BUG: Agregar windowWidth: 850 engaña a html2pdf para que SIEMPRE piense
-                // que está en un monitor de PC, evitando que la tabla se rompa o achique en móviles.
-                html2canvas:  { scale: 2, useCORS: true, windowWidth: 850 },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                pagebreak:    { mode: 'css', avoid: ['tr', '.summary-section'] }
-            };
-
-            try {
-                await html2pdf().set(opt).from(element).save();
-            } catch(e) {
-                console.error("Error generando PDF:", e);
-                alert("Error al generar PDF: " + e.message);
-            } finally {
-                // Devolvemos ambos valores a negativo para ocultarla bien
-                element.style.position = 'absolute';
-                element.style.left = '-9999px';
-                element.style.top = '-9999px'; 
-            }
+            // Llamar al motor de impresión del sistema
+            window.print();
         }
 
         function generateInvoiceFromAdmin(orderId) {
             const order = orders.find(o => o.id === orderId);
             if(order) {
-                generateAndDownloadInvoice(order);
+                triggerNativePrint(order);
             }
         }
-        // --- FIN SISTEMA PDF ---
 
         function openCheckout() {
             if(bag.length === 0) { alert("Tu bolsa está vacía. Selecciona productos primero."); return; }
@@ -697,7 +607,7 @@
 
         function closeCheckout() { document.getElementById('checkout-overlay').style.display = 'none'; }
 
-        async function processOrder() {
+        function processOrder() {
             try {
                 const name = document.getElementById('c-name').value.trim();
                 const lastName = document.getElementById('c-lastname').value.trim();
@@ -706,7 +616,7 @@
 
                 if(!name || !lastName || !phone) { alert("Por favor, completa todos los datos requeridos."); return; }
 
-                btnProcess.innerText = "GENERANDO FACTURA...";
+                btnProcess.innerText = "PROCESANDO PEDIDO...";
                 btnProcess.disabled = true;
 
                 const orderID = "FB-" + Math.floor(1000 + Math.random() * 9000);
@@ -730,22 +640,28 @@
                     itemsList: [...bag] 
                 };
                 
+                // Guardamos en la Base de Datos
                 orders.unshift(newOrder); 
                 db.ref('ordersDB').set(orders); 
 
-                await generateAndDownloadInvoice(newOrder);
+                // Ejecutamos la impresión de la nueva factura NATIVA
+                triggerNativePrint(newOrder);
 
-                const message = `¡Hola Fanática! 🦋 Soy ${name} ${lastName}.\nAcabo de realizar un pedido en la web.\n\n*Pedido:* #${orderID}\n\nTe envío mi factura en PDF por aquí para concretar el pago. ¡Gracias!`;
+                const totalString = totalVES.toLocaleString('es-VE', {minimumFractionDigits: 2});
+                const message = `¡Hola Fanática! 🦋 Soy ${name} ${lastName}.\nAcabo de realizar un pedido en la web.\n\n*Pedido:* #${orderID}\n*Total:* ${totalString} Bs\n\nTe envío mi factura (o el número de pedido) para concretar el pago. ¡Gracias!`;
                 const waLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 
-                bag = []; updateBagUI();
-                document.getElementById('c-name').value = ""; document.getElementById('c-lastname').value = ""; document.getElementById('c-phone').value = "";
-                closeCheckout();
-                
-                btnProcess.innerText = "GENERAR PEDIDO";
-                btnProcess.disabled = false;
+                // Le damos 1.5 segundos para que la ventana de impresión cargue sin interrumpir
+                setTimeout(() => {
+                    bag = []; updateBagUI();
+                    document.getElementById('c-name').value = ""; document.getElementById('c-lastname').value = ""; document.getElementById('c-phone').value = "";
+                    closeCheckout();
+                    btnProcess.innerText = "GENERAR PEDIDO";
+                    btnProcess.disabled = false;
+                    
+                    window.open(waLink, '_blank');
+                }, 1500);
 
-                window.open(waLink, '_blank');
             } catch (error) {
                 console.error("Error al procesar el pedido:", error);
                 alert("Ocurrió un error al generar el pedido. Intenta nuevamente.");
@@ -782,7 +698,7 @@
                             <div style="text-align:right;">
                                 <div style="color:var(--fucsia); font-weight:bold; font-size:1.3rem; margin-bottom:10px;">${ord.total.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs</div>
                                 <button class="action-btn btn-detail" onclick="toggleOrderDetails('${ord.id}')">Ver <i class="fa-solid fa-chevron-down"></i></button>
-                                <button class="action-btn btn-pdf" onclick="generateInvoiceFromAdmin('${ord.id}')">Generar Factura</button>
+                                <button class="action-btn btn-pdf" onclick="generateInvoiceFromAdmin('${ord.id}')">Imprimir</button>
                                 <button class="action-btn btn-del" onclick="deleteOrderById('${ord.id}')">Eliminar</button>
                             </div>
                         </div>
