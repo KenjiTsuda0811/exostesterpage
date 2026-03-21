@@ -59,6 +59,15 @@
         .social-btn { width: 55px; height: 55px; border-radius: 18px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.6rem; text-decoration: none; transition: var(--transition); box-shadow: var(--shadow-3d); }
         .social-btn:hover { transform: translateY(-5px) scale(1.1); }
 
+        /* --- PANTALLA DE CARGA PDF (NUEVO) --- */
+        #pdf-loading-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+            background: rgba(253, 250, 251, 0.98); z-index: 9999999;
+            flex-direction: column; align-items: center; justify-content: center; text-align: center;
+        }
+        #pdf-loading-overlay i { font-size: 3.5rem; color: var(--fucsia); margin-bottom: 20px; }
+        #pdf-loading-overlay h2 { font-family: 'Playfair Display'; font-size: 2rem; color: #1a1a1a; margin-bottom: 10px; }
+
         /* --- CHECKOUT MODAL --- */
         #checkout-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
@@ -261,7 +270,7 @@
                 background: transparent; 
             }
             #category-list { flex-direction: row; gap: 10px; width: max-content; }
-            .category-sidebar h3 { display: none; } /* Oculta el título "Categorías" en el celular */
+            .category-sidebar h3 { display: none; } 
             .cat-btn { 
                 padding: 10px 20px; 
                 border: 1px solid rgba(230,0,126,0.3); 
@@ -274,7 +283,6 @@
                 color: white; 
                 box-shadow: 0 4px 10px rgba(230,0,126,0.3); 
             }
-            /* Ocultar barra de scroll en móviles */
             .category-sidebar::-webkit-scrollbar { display: none; }
             .category-sidebar { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -297,6 +305,12 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
 </head>
 <body onload="initApp()">
+
+    <div id="pdf-loading-overlay">
+        <i class="fa-solid fa-spinner fa-spin"></i>
+        <h2>Generando Factura Mágica...</h2>
+        <p style="color:#666;">Preparando tu PDF, por favor no cierres esta ventana.</p>
+    </div>
 
     <div id="invoice-print-area">
         <div class="invoice-card">
@@ -472,7 +486,7 @@
             <div class="footer-inner">
                 <div>
                     <h2 style="font-family:'Playfair Display'; font-size:2.2rem; margin-bottom:10px;">Fanática de la Belleza</h2>
-                    <p style="opacity:0.7; font-weight:300;">El arte del maquillaje, llevado a su máxima expresión.</p>
+                    <p style="opacity:0.7; font-weight:300;">El arte de cuidarte, llevado a su máxima expresión.</p>
                 </div>
                 <div style="text-align:right;">
                     <p style="opacity:0.5; font-size:0.8rem; letter-spacing:1px;">© FANATICA DE LA BELLEZA 2026 TODOS LOS DERECHOS RESERVADOS</p>
@@ -577,8 +591,6 @@
         let products = [];
         let bag = []; 
         let orders = [];
-        
-        // Variable Global para la Categoría seleccionada
         let currentCategory = 'Todas';
 
         function initApp() {
@@ -617,83 +629,92 @@
             renderTips(); updateBagUI();
         }
 
-// FUNCIONES DE FACTURACION PDF CON HTML2PDF (CORREGIDO EL PDF EN BLANCO)
-async function generateAndDownloadInvoice(order) {
-    document.getElementById('inv-number').innerText = `N° ${order.id}`;
-    document.getElementById('inv-date').innerText = `Emisión: ${order.date}`;
-    document.getElementById('inv-client-name').innerText = order.client;
-    document.getElementById('inv-client-phone').innerText = `Teléfono: ${order.phone}`;
-    
-    let totalUSDOriginal = 0;
-    if (order.itemsList && order.itemsList.length > 0) {
-        order.itemsList.forEach(item => totalUSDOriginal += (item.priceUSD * item.quantity));
-    }
-    const impliedTasa = totalUSDOriginal > 0 ? (order.total / totalUSDOriginal) : tasaVES;
+        // --- SISTEMA INFALIBLE DE GENERACIÓN DE PDF ---
+        async function generateAndDownloadInvoice(order) {
+            document.getElementById('inv-number').innerText = `N° ${order.id}`;
+            document.getElementById('inv-date').innerText = `Emisión: ${order.date}`;
+            document.getElementById('inv-client-name').innerText = order.client;
+            document.getElementById('inv-client-phone').innerText = `Teléfono: ${order.phone}`;
+            
+            let totalUSDOriginal = 0;
+            if (order.itemsList && order.itemsList.length > 0) {
+                order.itemsList.forEach(item => totalUSDOriginal += (item.priceUSD * item.quantity));
+            }
+            const impliedTasa = totalUSDOriginal > 0 ? (order.total / totalUSDOriginal) : tasaVES;
 
-    let itemsHtml = "";
-    let totalBsCalculado = 0;
-    
-    order.itemsList.forEach(item => {
-        let precioUnidadBs = item.priceUSD * impliedTasa;
-        let itemTotalBs = precioUnidadBs * item.quantity;
-        totalBsCalculado += itemTotalBs;
-        
-        itemsHtml += `
-            <tr>
-                <td>${item.quantity < 10 ? '0'+item.quantity : item.quantity}</td>
-                <td>
-                    <span class="product-name">${item.name}</span>
-                </td>
-                <td style="text-align: right;">${precioUnidadBs.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs</td>
-                <td style="text-align: right;">${itemTotalBs.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs</td>
-            </tr>
-        `;
-    });
-    
-    document.getElementById('inv-items-body').innerHTML = itemsHtml;
-    document.getElementById('inv-subtotal').innerText = `${totalBsCalculado.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs`;
-    document.getElementById('inv-total-ves').innerText = `${totalBsCalculado.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs`;
+            let itemsHtml = "";
+            let totalBsCalculado = 0;
+            
+            order.itemsList.forEach(item => {
+                let precioUnidadBs = item.priceUSD * impliedTasa;
+                let itemTotalBs = precioUnidadBs * item.quantity;
+                totalBsCalculado += itemTotalBs;
+                
+                itemsHtml += `
+                    <tr>
+                        <td>${item.quantity < 10 ? '0'+item.quantity : item.quantity}</td>
+                        <td>
+                            <span class="product-name">${item.name}</span>
+                        </td>
+                        <td style="text-align: right;">${precioUnidadBs.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs</td>
+                        <td style="text-align: right;">${itemTotalBs.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs</td>
+                    </tr>
+                `;
+            });
+            
+            document.getElementById('inv-items-body').innerHTML = itemsHtml;
+            document.getElementById('inv-subtotal').innerText = `${totalBsCalculado.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs`;
+            document.getElementById('inv-total-ves').innerText = `${totalBsCalculado.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs`;
 
-    const element = document.getElementById('invoice-print-area');
-    
-    // CORRECCIÓN: Traemos la factura al origen exacto de la página (0,0) pero oculta detrás de todo
-    element.style.position = 'absolute';
-    element.style.left = '0';
-    element.style.top = '0'; 
-    element.style.zIndex = '-9999';
+            const element = document.getElementById('invoice-print-area');
+            const overlay = document.getElementById('pdf-loading-overlay');
+            
+            // 1. Mostramos la pantalla de carga al usuario
+            overlay.style.display = 'flex';
+            
+            // 2. Traemos la factura físicamente al centro de la pantalla pero OCULTA DETRÁS de la pantalla de carga
+            element.style.position = 'fixed';
+            element.style.top = '0';
+            element.style.left = '0';
+            element.style.zIndex = '999990'; // Un número menor al overlay pero mayor al resto de la página
 
-    const opt = {
-        margin:       [10, 0, 10, 0],
-        filename:     `Factura_Fanatica_${order.id}.pdf`,
-        image:        { type: 'jpeg', quality: 0.98 },
-        // CORRECCIÓN: scrollY: 0 fuerza a la cámara a mirar arriba, evitando fondos blancos si hiciste scroll
-        html2canvas:  { scale: 2, useCORS: true, scrollY: 0, windowY: 0 }, 
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        pagebreak:    { mode: 'css', avoid: ['tr', '.summary-section'] }
-    };
+            const opt = {
+                margin:       [10, 0, 10, 0],
+                filename:     `Factura_Fanatica_${order.id}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, scrollY: 0 },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak:    { mode: 'css', avoid: ['tr', '.summary-section'] }
+            };
 
-    // Le damos 100 milisegundos al navegador para que acomode la factura antes del "Flash"
-    setTimeout(async () => {
-        try {
-            await html2pdf().set(opt).from(element).save();
-        } catch(e) {
-            console.error("Error generando PDF:", e);
-            alert("Error al generar PDF: " + e.message);
-        } finally {
-            // Volvemos a desterrar la factura fuera de la pantalla
-            element.style.left = '-9999px';
-            element.style.top = '-9999px';
+            // 3. Le damos medio segundo al navegador para que dibuje la factura perfecta, tomamos la foto y luego escondemos todo.
+            return new Promise((resolve) => {
+                setTimeout(async () => {
+                    try {
+                        await html2pdf().set(opt).from(element).save();
+                    } catch(e) {
+                        console.error("Error generando PDF:", e);
+                        alert("Error al generar PDF: " + e.message);
+                    } finally {
+                        // Devolvemos la factura a la nada misma
+                        element.style.position = 'absolute';
+                        element.style.left = '-9999px';
+                        element.style.top = '-9999px';
+                        // Quitamos el loading
+                        overlay.style.display = 'none';
+                        resolve();
+                    }
+                }, 500); 
+            });
         }
-    }, 100);
-}
 
-        function generateInvoiceFromAdmin(orderId) {
+        async function generateInvoiceFromAdmin(orderId) {
             const order = orders.find(o => o.id === orderId);
             if(order) {
-                generateAndDownloadInvoice(order);
+                await generateAndDownloadInvoice(order);
             }
         }
-        // FIN FUNCIONES PDF
+        // --- FIN SISTEMA PDF ---
 
         function openCheckout() {
             if(bag.length === 0) { alert("Tu bolsa está vacía. Selecciona productos primero."); return; }
@@ -739,6 +760,7 @@ async function generateAndDownloadInvoice(order) {
                 orders.unshift(newOrder); 
                 db.ref('ordersDB').set(orders); 
 
+                // Esperamos pacientemente a que la pantalla de carga y el PDF terminen
                 await generateAndDownloadInvoice(newOrder);
 
                 const message = `¡Hola Fanática! 🦋 Soy ${name} ${lastName}.\nAcabo de realizar un pedido en la web.\n\n*Pedido:* #${orderID}\n\nTe envío mi factura en PDF por aquí para concretar el pago. ¡Gracias!`;
@@ -889,7 +911,6 @@ async function generateAndDownloadInvoice(order) {
 
         function saveTasa() { tasaVES = parseFloat(document.getElementById('tasa-input').value) || TASA_DEFAULT; db.ref('tasaVES').set(tasaVES); alert(`Tasa actualizada a ${tasaVES.toFixed(2)} Bs.`); }
 
-        // EXTRACCIÓN Y RENDERIZADO DEL MENÚ DE CATEGORÍAS
         function extractAndRenderCategories() {
             const list = document.getElementById('category-list');
             if(!list) return;
@@ -921,7 +942,6 @@ async function generateAndDownloadInvoice(order) {
             filterProducts(); 
         }
 
-        // SISTEMA DE FILTRADO COMBINADO (Buscador + Menú Categoría)
         function filterProducts() {
             const query = document.getElementById('searchInput');
             let text = "";
