@@ -7,8 +7,6 @@
     <link rel="icon" href="index.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
         :root {
@@ -192,54 +190,49 @@
         }
 
         /* =========================================
-           ESTILOS DE LA NUEVA FACTURA (BLINDADA PARA EL PDF)
+           ESTILOS DE LA NUEVA FACTURA (NATIVA)
            ========================================= */
-        #invoice-print-area { 
-            position: absolute; 
-            left: -9999px; 
-            top: 0; 
-            width: 800px !important; /* Bloqueado para que el móvil no lo aplaste */
-            background: white; 
-            z-index: -1; /* Oculto por defecto */
-        }
+        #invoice-print-area { display: none; /* Oculto en la web normal */ }
         
         .factura-container {
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            width: 800px !important; /* Bloqueado para siempre */
-            background: white; 
-            padding: 50px;
-            color: var(--text-dark); 
-            position: relative;
-            box-sizing: border-box;
+            max-width: 850px; margin: auto; background: white; padding: 60px;
+            border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            position: relative; overflow: hidden; color: var(--text-dark);
         }
-        .factura-container::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 10px; background: linear-gradient(90deg, var(--magenta), #ff66b2); }
-        
-        /* Uso de FLEX en lugar de GRID para mayor compatibilidad con html2canvas */
+        .factura-container::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 6px; background: linear-gradient(90deg, var(--magenta), #ff66b2); }
         .inv-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 50px; }
         .brand-box { display: flex; flex-direction: column; gap: 10px; }
         .logo-letras { height: 70px; width: auto; object-fit: contain; }
-        .logo-icono { height: 100px; opacity: 0.1; position: absolute; right: 20px; top: 40px; transform: rotate(-15deg); }
+        .logo-icono { height: 100px; opacity: 0.1; position: absolute; right: -20px; top: 40px; transform: rotate(-15deg); }
         .invoice-title { text-align: right; }
         .invoice-title h1 { margin: 0; color: var(--magenta); font-size: 2.2em; letter-spacing: -1px; text-transform: uppercase; }
-        
-        .info-grid { display: flex; justify-content: space-between; gap: 40px; margin-bottom: 40px; padding: 25px; background-color: var(--magenta-light); border-radius: 12px; box-sizing: border-box; }
-        .info-block { width: 50%; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 40px; padding: 25px; background-color: var(--magenta-light); border-radius: 12px; }
         .info-block h4 { margin: 0 0 10px 0; text-transform: uppercase; font-size: 0.85em; color: var(--magenta); letter-spacing: 1px; }
         .info-block p { margin: 0; line-height: 1.5; font-size: 0.95em; }
-        
         .inv-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
         .inv-table th { text-align: left; padding: 15px; border-bottom: 2px solid var(--magenta); color: var(--text-dark); font-size: 0.9em; text-transform: uppercase; }
         .inv-table td { padding: 18px 15px; border-bottom: 1px solid var(--border); font-size: 1em; }
         .col-desc { width: 50%; } .col-qty { width: 10%; text-align: center; } .col-price { width: 20%; text-align: right; } .col-total { width: 20%; text-align: right; font-weight: 600; }
-        
         .summary-container { display: flex; justify-content: flex-end; }
         .summary-box { width: 250px; }
         .summary-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
         .summary-row.grand-total { border-bottom: none; color: var(--magenta); font-size: 1.5em; font-weight: bold; margin-top: 10px; }
-        
-        .inv-footer { margin-top: 50px; padding-top: 30px; border-top: 1px solid var(--border); text-align: center; }
+        .inv-footer { margin-top: 60px; padding-top: 30px; border-top: 1px solid var(--border); text-align: center; }
         .inv-footer p { color: var(--text-muted); font-size: 0.9em; margin: 5px 0; }
         .stamp { display: inline-block; margin-top: 20px; padding: 10px 20px; border: 2px dashed #ddd; border-radius: 8px; color: #ddd; font-weight: bold; transform: rotate(-5deg); }
+
+        /* MAGIA PURA: Configuración exclusiva para impresión nativa */
+        @media print {
+            /* Ocultar toda la web, overlays, botones y paneles */
+            body > *:not(#invoice-print-area) { display: none !important; }
+            
+            /* Mostrar únicamente la factura, quitando márgenes del sistema */
+            #invoice-print-area { display: block !important; width: 100%; margin: 0; padding: 0; }
+            body { background: white; padding: 0; margin: 0; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            .factura-container { box-shadow: none; border-radius: 0; padding: 20px; max-width: 100%; }
+            .factura-container::before { height: 10px; }
+        }
     </style>
 
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
@@ -269,7 +262,7 @@
                     <p>Casco central, Maracaibo, Venezuela.</p>
                     <p>Tel: 0412-0661842</p>
                 </div>
-                <div class="info-block" style="border-left: 1px solid rgba(230,0,126,0.1); padding-left: 40px; box-sizing: border-box;">
+                <div class="info-block" style="border-left: 1px solid rgba(230,0,126,0.1); padding-left: 40px;">
                     <h4>Facturado a:</h4>
                     <p><strong id="print-client-name">Nombre del Cliente</strong></p>
                     <p id="print-client-phone">Teléfono: </p>
@@ -329,7 +322,7 @@
         <div class="checkout-box">
             <h2 style="font-family:'Playfair Display'; font-size:1.8rem; margin-bottom:10px;">Casi tuyo</h2>
             <p style="color:#666; font-size:0.9rem; margin-bottom:15px;">Ingresa tus datos para generar tu pedido y atenderte vía WhatsApp.</p>
-            <p style="color: var(--fucsia); font-size: 0.85rem; margin-bottom: 25px; font-weight: bold;"><i class="fa-solid fa-file-pdf"></i> Su factura se guardará en pdf automáticamente en su dispositivo.</p>
+            <p style="color: var(--fucsia); font-size: 0.85rem; margin-bottom: 25px; font-weight: bold;"><i class="fa-solid fa-file-pdf"></i> Su factura se generará lista para imprimir o guardar en PDF.</p>
             
             <input type="text" id="c-name" class="checkout-input" placeholder="Nombre">
             <input type="text" id="c-lastname" class="checkout-input" placeholder="Apellido">
@@ -558,9 +551,9 @@
         }
 
         /* =========================================
-           LÓGICA BLINDADA PARA PDF EN MÓVILES
+           LÓGICA DE IMPRESIÓN NATIVA 
            ========================================= */
-        async function generateAndDownloadInvoice(order) {
+        function triggerNativePrint(order) {
             // Llenar datos de la factura
             document.getElementById('print-order-id').innerText = `PEDIDO #${order.id}`;
             document.getElementById('print-client-name').innerText = order.client;
@@ -595,43 +588,14 @@
             document.getElementById('print-subtotal').innerText = `${totalBsCalculado.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs`;
             document.getElementById('print-total').innerText = `${totalBsCalculado.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs`;
 
-            const element = document.getElementById('invoice-print-area');
-            const originalOverflow = document.body.style.overflowX;
-            
-            // EL TRUCO PROFESIONAL: 
-            // 1. Quitamos temporalmente cualquier recorte del teléfono (overflowX visible).
-            // 2. Posicionamos la factura justo por debajo de la pantalla modal actual (z-index 2999).
-            document.body.style.overflowX = 'visible';
-            element.style.position = 'absolute';
-            element.style.left = '0';
-            element.style.top = '0';
-            element.style.zIndex = '2999';
-
-            const opt = {
-                margin:       10, // Margen blanco seguro
-                filename:     `Factura_${order.id}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                // windowWidth 800 asegura que tome la foto como si estuviera en una PC siempre
-                html2canvas:  { scale: 2, useCORS: true, windowWidth: 800 },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
-            try {
-                await html2pdf().set(opt).from(element).save();
-            } catch(e) {
-                console.error("Error generando PDF:", e);
-            } finally {
-                // Restauramos todo a la normalidad para que el usuario no note nada
-                element.style.left = '-9999px';
-                element.style.zIndex = '-1';
-                document.body.style.overflowX = originalOverflow || 'hidden';
-            }
+            // Llamar al motor de impresión del sistema
+            window.print();
         }
 
         function generateInvoiceFromAdmin(orderId) {
             const order = orders.find(o => o.id === orderId);
             if(order) {
-                generateAndDownloadInvoice(order);
+                triggerNativePrint(order);
             }
         }
 
@@ -643,7 +607,7 @@
 
         function closeCheckout() { document.getElementById('checkout-overlay').style.display = 'none'; }
 
-        async function processOrder() {
+        function processOrder() {
             try {
                 const name = document.getElementById('c-name').value.trim();
                 const lastName = document.getElementById('c-lastname').value.trim();
@@ -680,22 +644,24 @@
                 orders.unshift(newOrder); 
                 db.ref('ordersDB').set(orders); 
 
-                // Ejecutamos la descarga auto-mágica
-                await generateAndDownloadInvoice(newOrder);
+                // Ejecutamos la impresión de la nueva factura NATIVA
+                triggerNativePrint(newOrder);
 
-                // Mensaje exacto solicitado por ti
-                const message = `Hola Fanatica de la belleza, soy *${name} ${lastName}*, este es el numero de mi pedido "*#${orderID}*", quedo atento/a para pagar`;
+                const totalString = totalVES.toLocaleString('es-VE', {minimumFractionDigits: 2});
+                const message = `¡Hola Fanática! 🦋 Soy ${name} ${lastName}.\nAcabo de realizar un pedido en la web.\n\n*Pedido:* #${orderID}\n*Total:* ${totalString} Bs\n\nTe envío mi factura (o el número de pedido) para concretar el pago. ¡Gracias!`;
                 const waLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 
-                bag = []; updateBagUI();
-                document.getElementById('c-name').value = ""; document.getElementById('c-lastname').value = ""; document.getElementById('c-phone').value = "";
-                closeCheckout();
-                
-                btnProcess.innerText = "GENERAR PEDIDO";
-                btnProcess.disabled = false;
+                // Le damos 1.5 segundos para que la ventana de impresión cargue sin interrumpir
+                setTimeout(() => {
+                    bag = []; updateBagUI();
+                    document.getElementById('c-name').value = ""; document.getElementById('c-lastname').value = ""; document.getElementById('c-phone').value = "";
+                    closeCheckout();
+                    btnProcess.innerText = "GENERAR PEDIDO";
+                    btnProcess.disabled = false;
+                    
+                    window.open(waLink, '_blank');
+                }, 1500);
 
-                // Redirigir a WhatsApp
-                window.open(waLink, '_blank');
             } catch (error) {
                 console.error("Error al procesar el pedido:", error);
                 alert("Ocurrió un error al generar el pedido. Intenta nuevamente.");
@@ -732,7 +698,7 @@
                             <div style="text-align:right;">
                                 <div style="color:var(--fucsia); font-weight:bold; font-size:1.3rem; margin-bottom:10px;">${ord.total.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs</div>
                                 <button class="action-btn btn-detail" onclick="toggleOrderDetails('${ord.id}')">Ver <i class="fa-solid fa-chevron-down"></i></button>
-                                <button class="action-btn btn-pdf" onclick="generateInvoiceFromAdmin('${ord.id}')">Guardar PDF</button>
+                                <button class="action-btn btn-pdf" onclick="generateInvoiceFromAdmin('${ord.id}')">Imprimir</button>
                                 <button class="action-btn btn-del" onclick="deleteOrderById('${ord.id}')">Eliminar</button>
                             </div>
                         </div>
