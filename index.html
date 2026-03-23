@@ -888,7 +888,7 @@
                 const totalString = finalTotal.toLocaleString('es-VE', {minimumFractionDigits: 2});
                 const promoString = activeCoupon ? `\n🎁 *¡Descuento del ${discountPercent}% aplicado!*` : "";
                 
-                const message = `Hola Fanatica de la belleza, soy *${name} ${lastName}* (C.I: ${cedula}), este es el numero de mi pedido "*#${orderID}*".\nEl total a pagar es de: *${totalString} Bs*${promoString}\n\nQuedo atento/a para enviar el pago.`;
+                const message = `Hola Fanatica de la belleza, soy *${name} ${lastName}* (C.I: ${cedula}), este es el numero de mi pedido "*#${orderID}*".\\nQuedo atento/a para enviar el pago.`;
                 const waLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 
                 setTimeout(() => {
