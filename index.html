@@ -221,13 +221,10 @@
         .inv-footer { margin-top: 60px; padding-top: 30px; border-top: 1px solid var(--border); text-align: center; }
         .inv-footer p { color: var(--text-muted); font-size: 0.9em; margin: 5px 0; }
         .stamp { display: inline-block; margin-top: 20px; padding: 10px 20px; border: 2px dashed #ddd; border-radius: 8px; color: #ddd; font-weight: bold; transform: rotate(-5deg); }
-
+        
         /* MAGIA PURA: Configuración exclusiva para impresión nativa */
         @media print {
-            /* Ocultar toda la web, overlays, botones y paneles */
             body > *:not(#invoice-print-area) { display: none !important; }
-            
-            /* Mostrar únicamente la factura, quitando márgenes del sistema */
             #invoice-print-area { display: block !important; width: 100%; margin: 0; padding: 0; }
             body { background: white; padding: 0; margin: 0; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
             .factura-container { box-shadow: none; border-radius: 0; padding: 20px; max-width: 100%; }
@@ -251,47 +248,42 @@
                 </div>
                 <div class="invoice-title">
                     <h1>FACTURA</h1>
-                    <p id="print-order-id" style="margin:5px 0 0 0; color: var(--text-muted); font-weight: bold;">PEDIDO #</p>
+                    <p id="print-order-id" style="margin:5px 0 0 0; color: var(--text-muted); font-weight: bold;"></p>
+                    <p id="print-date" style="margin:0; font-size: 0.85em;"></p>
                 </div>
             </div>
-
+            
             <div class="info-grid">
                 <div class="info-block">
-                    <h4>Emitido por:</h4>
-                    <p><strong>Fanática de la Belleza</strong></p>
-                    <p>Casco central, Maracaibo, Venezuela.</p>
-                    <p>Tel: 0412-0661842</p>
+                    <h4>Datos del Cliente</h4>
+                    <p id="print-client-name" style="font-weight: 600; font-size: 1.1em; margin-bottom: 5px;"></p>
+                    <p id="print-client-phone"></p>
                 </div>
-                <div class="info-block" style="border-left: 1px solid rgba(230,0,126,0.1); padding-left: 40px;">
-                    <h4>Facturado a:</h4>
-                    <p><strong id="print-client-name">Nombre del Cliente</strong></p>
-                    <p id="print-client-phone">Teléfono: </p>
-                    <p id="print-date">Fecha de emisión: </p>
+                <div class="info-block">
+                    <h4>Información de la Tienda</h4>
+                    <p>Fanática de la Belleza</p>
+                    <p>Calle Páez, Casco Central, Maracaibo, Zulia</p>
                 </div>
             </div>
 
             <table class="inv-table">
                 <thead>
                     <tr>
-                        <th class="col-desc">Descripción</th>
+                        <th class="col-desc">Descripción del Artículo</th>
                         <th class="col-qty">Cant.</th>
-                        <th class="col-price">Precio (Bs)</th>
-                        <th class="col-total">Total (Bs)</th>
+                        <th class="col-price">Precio Unit.</th>
+                        <th class="col-total">Total</th>
                     </tr>
                 </thead>
-                <tbody id="print-items-body">
+                <tbody id="print-items">
                     </tbody>
             </table>
 
             <div class="summary-container">
                 <div class="summary-box">
                     <div class="summary-row">
-                        <span>Sub-Total</span>
+                        <span>Subtotal</span>
                         <span id="print-subtotal"></span>
-                    </div>
-                    <div class="summary-row">
-                        <span>Descuento</span>
-                        <span>0,00 Bs</span>
                     </div>
                     <div class="summary-row grand-total">
                         <span>TOTAL</span>
@@ -301,701 +293,550 @@
             </div>
 
             <div class="inv-footer">
-                <p>¡Gracias por tu confianza! Eres nuestra prioridad.</p>
-                <p><em>La factura física será entregada por la empresa.</em></p>
-                <div class="stamp">DOCUMENTO DIGITAL</div>
+                <p>¡Gracias por tu compra en Fanática de la Belleza!</p>
+                <p>Este documento es un comprobante de tu pedido generado electrónicamente.</p>
+                <div class="stamp">PAGO VERIFICADO</div>
             </div>
         </div>
     </div>
-    <div id="login-overlay">
-        <div class="login-box">
-            <img src="Logo-Fanaticadelabelleza.png" style="height: 60px; margin-bottom: 15px; filter: drop-shadow(0 0 10px var(--fucsia));">
-            <h2 style="font-family:'Playfair Display'; font-size:1.8rem; margin-bottom:20px; color:white;">Acceso Privado</h2>
-            <input type="email" id="admin-email" class="admin-inp-login" placeholder="Correo electrónico">
-            <input type="password" id="admin-pass" class="admin-inp-login" placeholder="Contraseña">
-            <button class="btn-luxury" style="width:100%; margin-bottom:15px;" onclick="loginAdmin()">ENTRAR AL PANEL</button>
-            <button onclick="closeLogin()" style="background:none; border:none; color:#999; cursor:pointer; font-weight:bold;">Cancelar</button>
-        </div>
-    </div>
-
-    <div id="checkout-overlay">
-        <div class="checkout-box">
-            <h2 style="font-family:'Playfair Display'; font-size:1.8rem; margin-bottom:10px;">Casi tuyo</h2>
-            <p style="color:#666; font-size:0.9rem; margin-bottom:15px;">Ingresa tus datos para generar tu pedido y atenderte vía WhatsApp.</p>
-            <p style="color: var(--fucsia); font-size: 0.85rem; margin-bottom: 25px; font-weight: bold;"><i class="fa-solid fa-file-pdf"></i> Su factura se generará lista para imprimir o guardar en PDF, luego se te direccionara al whatsapp.</p>
-            
-            <input type="text" id="c-name" class="checkout-input" placeholder="Nombre">
-            <input type="text" id="c-lastname" class="checkout-input" placeholder="Apellido">
-            <input type="tel" id="c-phone" class="checkout-input" placeholder="Teléfono (Ej. 04121234567)">
-            
-            <button class="btn-luxury" style="width:100%; margin-bottom:15px;" onclick="processOrder()" id="btn-process-order">GENERAR PEDIDO</button>
-            <button onclick="closeCheckout()" style="background:none; border:none; color:#999; cursor:pointer; font-weight:bold;">Cancelar</button>
-        </div>
-    </div>
-
+    
     <div id="coming-soon-screen">
-        <video id="cs-video-bg" src="proximamente.mp4" autoplay loop muted playsinline></video>
+        <video id="cs-video-bg" autoplay loop muted playsinline>
+            <source src="background-video.mp4" type="video/mp4">
+        </video>
         <div class="cs-content">
-            <img src="Logo-Fanaticadelabelleza.png" class="butterfly-icon cs-trigger" alt="Admin" style="height: 120px; margin-bottom: 20px;">
-            <h1 style="font-family:'Playfair Display'; font-size: 4.5rem; color: var(--white); text-shadow: 0 4px 15px rgba(0,0,0,0.5);">Próximamente</h1>
-            <p style="letter-spacing: 6px; font-weight: 600; font-size: 0.9rem; color: #ccc;">PREPARANDO LA EXPERIENCIA</p>
+            <img src="logo f.png" alt="Fanática Logo" style="width: 250px; margin-bottom: 20px;">
+            <h1 style="font-family: 'Playfair Display'; font-size: 3rem; margin-bottom: 10px;">Próximamente</h1>
+            <p style="font-size: 1.2rem; max-width: 400px;">Estamos preparando un espacio donde la belleza será tu única regla. Prepárate para brillar.</p>
+            <br>
+            <button class="btn-luxury" onclick="enterWebsite()">Explorar Avance</button>
         </div>
     </div>
 
     <div id="main-website">
-        <div class="social-aside">
-            <a href="https://wa.me/584120661842" target="_blank" class="social-btn" style="background: #25D366;">
-                <i class="fa-brands fa-whatsapp"></i>
-            </a>
-            <a href="https://www.instagram.com/fanaticabeauty/" target="_blank" class="social-btn" style="background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #bc1888);">
-                <i class="fa-brands fa-instagram"></i>
-            </a>
-            <a href="https://www.tiktok.com/@fanaticadelabelleza" target="_blank" class="social-btn" style="background: #000;">
-                <i class="fa-brands fa-tiktok"></i>
-            </a>
-        </div>
-
-        <div id="side-bag">
-            <button onclick="toggleBag()" class="btn-continue"><i class="fa-solid fa-arrow-left"></i> SEGUIR MIRANDO</button>
-            <h2 style="font-family:'Playfair Display'; font-size: 2rem; margin-bottom:20px;">Mi Selección</h2>
-            
-            <div id="bag-items" style="flex:1; overflow-y:auto; padding-right: 10px;"></div>
-            
-            <div style="padding-top:20px; border-top:1px solid #eee; margin-top: auto;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:20px; font-weight:bold; font-size: 1.2rem;">
-                    <span>Total Estimado</span>
-                    <span id="bag-total-bs" style="color:var(--fucsia); font-size:1.6rem;">0.00 Bs</span>
-                </div>
-                <button class="btn-luxury" style="width:100%;" onclick="openCheckout()">ENVIAR PEDIDO</button>
-            </div>
-        </div>
-
         <header>
-            <div style="display:flex; align-items:center;">
-                <img src="Logo-Fanaticadelabelleza.png" class="butterfly-icon cs-trigger" alt="Admin">
+            <div style="display: flex; gap: 15px;">
+                <img src="Logo-Fanaticadelabelleza.png" alt="Icon" class="butterfly-icon cs-trigger">
             </div>
-            <div style="display:flex; justify-content:center;"><img src="logo f.png" class="logo-f" alt="Fanática"></div>
-            <div style="display:flex; justify-content:flex-end;">
-                <div class="cart-trigger" onclick="toggleBag()">
-                    <i class="fa-solid fa-bag-shopping"></i><span class="cart-count" id="count-badge">0</span>
+            <div style="text-align: center;">
+                <img src="logo f.png" alt="Fanática De La Belleza" class="logo-f">
+            </div>
+            <div style="text-align: right;">
+                <div class="cart-trigger" onclick="toggleCart()">
+                    <i class="fa-solid fa-bag-shopping"></i>
+                    <span class="cart-count" id="cart-counter">0</span>
                 </div>
             </div>
         </header>
 
+        <div class="social-aside">
+            <a href="#" class="social-btn" style="background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);"><i class="fa-brands fa-instagram"></i></a>
+            <a href="#" class="social-btn" style="background: #25D366;"><i class="fa-brands fa-whatsapp"></i></a>
+            <a href="#" class="social-btn" style="background: #1877F2;"><i class="fa-brands fa-facebook-f"></i></a>
+        </div>
+
         <section class="tips-section">
-            <h2 style="font-family:'Playfair Display'; font-size:2.8rem; margin-bottom:10px;">Rituales de Belleza</h2>
-            <p style="opacity:0.5; letter-spacing:2px; font-weight:600; font-size:0.8rem;">INSPIRACIÓN PARA TU PIEL</p>
-            <div class="tips-container" id="dynamic-tips"></div>
+            <h2 style="font-family: 'Playfair Display'; font-size: 3rem; color: var(--fucsia);">Secretos de Fanática</h2>
+            <div class="tips-container">
+                <div class="tip-card">
+                    <i class="fa-solid fa-droplet"></i>
+                    <h3 style="margin-bottom: 10px;">Hidratación Vital</h3>
+                    <p style="color: #666; font-size: 0.95rem;">El secreto de un maquillaje perfecto es una piel preparada. Nunca saltes tu crema hidratante.</p>
+                </div>
+                <div class="tip-card">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <h3 style="margin-bottom: 10px;">Difuminar es Clave</h3>
+                    <p style="color: #666; font-size: 0.95rem;">Tómate tu tiempo difuminando sombras y base para lograr un acabado profesional y sin líneas marcadas.</p>
+                </div>
+            </div>
         </section>
 
         <div class="store-wrapper">
             <aside class="category-sidebar">
-                <h3 style="font-family:'Playfair Display'; font-size:1.6rem; margin-bottom: 20px; color: var(--fucsia);">Categorías</h3>
-                <div id="category-list"></div>
+                <h3 style="font-family: 'Playfair Display'; color: var(--fucsia); margin-bottom: 20px; font-size: 1.5rem;">Categorías</h3>
+                <div id="category-list">
+                    <button class="cat-btn active" onclick="filterCategory('Todo')">Todos los Productos</button>
+                    </div>
             </aside>
 
-            <div class="main-store-area">
-                <div style="position: relative; width: 100%; margin-bottom: 30px;">
-                    <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: var(--fucsia); font-size: 1.2rem;"></i>
-                    <input type="text" id="searchInput" onkeyup="filterProducts()" placeholder="Buscar por nombre o código del producto..." style="width: 100%; padding: 15px 20px 15px 50px; border-radius: 30px; border: 1px solid rgba(230,0,126,0.3); outline: none; font-family: 'Outfit'; font-size: 1rem; box-shadow: var(--shadow-3d); transition: var(--transition);">
+            <main>
+                <div class="product-section" id="product-container">
+                    </div>
+            </main>
+        </div>
+
+        <div id="side-bag">
+            <button class="btn-continue" onclick="toggleCart()">← Seguir comprando</button>
+            <h2 style="font-family: 'Playfair Display'; color: var(--fucsia); margin-bottom: 20px;">Tu Bolsa</h2>
+            <div id="cart-items" style="flex: 1; overflow-y: auto; margin-bottom: 20px;"></div>
+            <div style="border-top: 2px solid #eee; padding-top: 20px;">
+                <div style="display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: bold; margin-bottom: 15px;">
+                    <span>Total:</span>
+                    <span id="cart-total">$0.00</span>
                 </div>
-                <section class="product-section" id="store-grid"></section>
+                <button class="btn-luxury" style="width: 100%;" onclick="openCheckout()">Finalizar Compra</button>
+            </div>
+        </div>
+
+        <div id="checkout-overlay">
+            <div class="checkout-box">
+                <h3 style="font-family: 'Playfair Display'; color: var(--fucsia); font-size: 1.8rem; margin-bottom: 20px;">Datos de Envío</h3>
+                <input type="text" id="client-name" class="checkout-input" placeholder="Nombre completo">
+                <input type="tel" id="client-phone" class="checkout-input" placeholder="Número de teléfono (Ej. 0414-XXXXXXX)">
+                <button class="btn-luxury" style="width: 100%; margin-top: 10px;" onclick="processOrder()">Confirmar Pedido</button>
+                <button onclick="closeCheckout()" style="background: none; border: none; color: #888; margin-top: 15px; cursor: pointer; font-family: 'Outfit';">Cancelar</button>
             </div>
         </div>
 
         <footer>
             <div class="footer-inner">
-                <div>
-                    <h2 style="font-family:'Playfair Display'; font-size:2.2rem; margin-bottom:10px;">Fanática de la Belleza</h2>
-                    <p style="opacity:0.7; font-weight:300;">El arte de cuidarte, llevado a su máxima expresión.</p>
+                <div style="max-width: 300px;">
+                    <h3 style="font-family: 'Playfair Display'; font-size: 2rem; margin-bottom: 15px;">Fanática De La Belleza</h3>
+                    <p style="color: #ccc; line-height: 1.6;">Donde la belleza encuentra su máxima expresión. Maracaibo, Venezuela.</p>
                 </div>
-                <div style="text-align:right;">
-                    <p style="opacity:0.5; font-size:0.8rem; letter-spacing:1px;">© FANATICA DE LA BELLEZA 2026 TODOS LOS DERECHOS RESERVADOS</p>
-                    <p style="margin-top:15px; font-weight:600;">Desarrollado por <a href="https://exoscodelabs.netlify.app/" target="_blank" class="ecls-link">Exos Code Labs</a></p>
+                <div style="text-align: right;">
+                    <p style="margin-bottom: 10px;">Desarrollado y Creado por</p>
+                    <a href="https://exoscodelabs.com" target="_blank" class="ecls-link" style="font-size: 1.5rem;">Exos Code Labs Studio</a>
+                    <p style="color: #888; font-size: 0.8rem; margin-top: 10px;">&copy; 2026. Todos los derechos reservados.</p>
                 </div>
             </div>
         </footer>
     </div>
 
-    <div id="admin-overlay">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h1 style="font-family:'Playfair Display'; font-size: 2.5rem; color: var(--fucsia);">Panel de Control</h1>
-            <button class="btn-luxury" onclick="logoutAdmin()">CERRAR SESIÓN</button>
+    <div id="login-overlay">
+        <div class="login-box">
+            <h2 style="color: var(--fucsia); font-family: 'Playfair Display'; margin-bottom: 20px;">Acceso Fanática</h2>
+            <input type="email" id="admin-email" class="admin-inp-login" placeholder="Correo">
+            <input type="password" id="admin-pass" class="admin-inp-login" placeholder="Contraseña">
+            <button class="btn-luxury" style="width: 100%; margin-bottom: 15px;" onclick="loginAdmin()">Entrar</button>
+            <button onclick="closeLogin()" style="background: none; border: none; color: #888; cursor: pointer; font-family: 'Outfit';">Cancelar</button>
         </div>
-        
+    </div>
+
+    <div id="admin-overlay">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 20px;">
+            <h2 style="font-family: 'Playfair Display'; font-size: 2rem;">Panel <span style="color: var(--fucsia);">Fanática</span></h2>
+            <button class="btn-luxury" onclick="logoutAdmin()">Cerrar Sesión</button>
+        </div>
+
         <div class="admin-grid">
-            <aside>
-                <div class="admin-box" style="border-color: var(--fucsia);">
-                    <h3 style="margin-bottom: 10px;">Modo Próximamente</h3>
-                    <label style="display:flex; align-items:center; gap:10px; cursor:pointer; margin-bottom:15px;">
-                        <input type="checkbox" id="cs-toggle" style="width:auto; transform:scale(1.5);">
-                        <span style="font-size:1.1rem; font-weight:bold;">Activar Pantalla de Espera</span>
-                    </label>
-                    <label style="font-size:0.8rem; color:#888;">Cargar Video de Fondo (.mp4, Recomendado < 5MB):</label>
-                    <input type="file" id="cs-video-input" accept="video/*" class="admin-inp" style="padding:10px;">
-                    <button class="btn-luxury" style="width:100%; margin-top:5px;" onclick="saveComingSoonSettings()">APLICAR MODO</button>
-                </div>
-
-                <div class="admin-box" style="background:var(--fucsia); border:none; box-shadow: var(--shadow-3d); margin-top:30px;">
-                    <label style="font-weight:bold; font-size:0.9rem;">TASA DE CAMBIO (USD A VES)</label>
-                    <input type="number" id="tasa-input" value="660" class="admin-inp" style="background:rgba(255,255,255,0.2); border:none; font-size:2rem; color:white; font-weight:bold; margin-top:10px;">
-                    <button class="btn-luxury" style="background:white; color:var(--fucsia); width:100%; box-shadow:none;" onclick="saveTasa()">ACTUALIZAR PRECIOS</button>
-                </div>
-
-                <div class="admin-box" style="margin-top:30px;">
-                    <h3 id="form-title">Crear Producto</h3>
-                    <input type="hidden" id="edit-id">
-                    <input type="text" id="p-name" class="admin-inp" placeholder="Nombre del Producto">
-                    <input type="number" id="p-price" class="admin-inp" placeholder="Precio en Dólares ($)">
-                    <input type="text" id="p-code" class="admin-inp" placeholder="Código Único (Ej. FB-01)">
+            <div>
+                <div class="admin-box">
+                    <h3>Nuevo Producto</h3>
+                    <input type="text" id="new-name" placeholder="Nombre del producto" class="admin-inp">
+                    <input type="text" id="new-ref" placeholder="Referencia (Ej. FDB-001)" class="admin-inp">
                     
-                    <input type="text" id="p-category" class="admin-inp" placeholder="Categoría (Ej. Labiales, Maquillaje)">
-                    
-                    <select id="p-stock" class="admin-sel">
-                        <option value="true">Disponible (En Stock)</option>
-                        <option value="false">Agotado (Sin Stock)</option>
+                    <input type="number" id="new-price" placeholder="Precio ($)" class="admin-inp">
+                    <input type="number" id="new-stock" placeholder="Cantidad disponible" class="admin-inp">
+                    <select id="new-cat" class="admin-sel">
+                        <option value="">Selecciona una categoría</option>
+                        <option value="Maquillaje">Maquillaje</option>
+                        <option value="Cuidado Facial">Cuidado Facial</option>
+                        <option value="Accesorios">Accesorios</option>
+                        <option value="Cabello">Cabello</option>
+                        <option value="Cuidado Corporal">Cuidado Corporal</option>
                     </select>
-                    <label style="color:#888; font-size:0.8rem; margin-bottom:5px; display:block;">Imagen desde dispositivo:</label>
-                    <input type="file" id="p-img" accept="image/*" class="admin-inp" style="padding:10px;">
-                    
-                    <button class="btn-luxury" style="width:100%; margin-top:10px;" id="btn-save" onclick="saveProduct()">GUARDAR PRODUCTO</button>
-                    <button class="btn-luxury" style="width:100%; margin-top:15px; background:transparent; border:1px solid #555; box-shadow:none; display:none;" id="btn-cancel" onclick="clearForm()">CANCELAR EDICIÓN</button>
+                    <input type="text" id="new-img" placeholder="URL de la imagen" class="admin-inp">
+                    <button class="btn-luxury" style="width: 100%;" onclick="addProduct()">Guardar Producto</button>
                 </div>
 
-                <div class="admin-box" style="margin-top:30px; border-color: #333;">
-                    <h3 style="color: white; font-family: 'Playfair Display'; font-size: 1.5rem; margin-bottom: 10px;">Carga Masiva <i class="fa-solid fa-bolt" style="color:#f1c40f; font-size:1.2rem;"></i></h3>
-                    <p style="color:#888; font-size:0.8rem; margin-bottom:15px;">Sube un archivo .CSV (Excel). Columnas: <b>name, price, code, stock, categoria, imagen</b>.</p>
-                    <input type="file" id="bulk-upload-file" accept=".csv" class="admin-inp" style="padding:10px; background:#222;">
-                    <button class="btn-luxury" style="width:100%; background: #28a745; box-shadow: 0 6px 0 #1e7e34;" onclick="processBulkUpload()">INICIAR CARGA MASIVA</button>
+                <div class="admin-box" style="margin-top: 20px;">
+                    <h3>Carga Masiva (JSON)</h3>
+                    <textarea id="bulk-json" class="admin-inp" style="height: 120px; resize: none;" placeholder='[{"nombre":"Labial", "referencia":"REF-01", "precio":5, "stock":10, "categoria":"Maquillaje", "img":"url"}]'></textarea>
+                    <button class="btn-luxury" style="width: 100%;" onclick="bulkUpload()">Subir Productos</button>
                 </div>
-            </aside>
+            </div>
 
             <div>
-                <section class="admin-box" style="margin-bottom: 30px; border-color: #333;">
-                    <h3 style="color: white;">Pedidos Recientes</h3>
-                    <div id="admin-orders-list"></div>
-                </section>
+                <div class="admin-box" style="margin-bottom: 20px;">
+                    <h3>Inventario</h3>
+                    <div style="overflow-x: auto;">
+                        <table class="inventory-table">
+                            <thead>
+                                <tr>
+                                    <th>Ref.</th>
+                                    <th>Nombre</th>
+                                    <th>Precio</th>
+                                    <th>Stock</th>
+                                    <th>Cat.</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-inventory"></tbody>
+                        </table>
+                    </div>
+                </div>
 
-                <section class="admin-box">
-                    <h3>Inventario de la Boutique</h3>
-                    <table class="inventory-table">
-                        <thead><tr><th>Imagen</th><th>Nombre</th><th>Precio ($)</th><th>Estado</th><th>Acciones</th></tr></thead>
-                        <tbody id="admin-inventory-list"></tbody>
-                    </table>
-                </section>
+                <div class="admin-box">
+                    <h3>Últimos Pedidos</h3>
+                    <div id="admin-orders"></div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
+        // CONFIGURACIÓN FIREBASE 
         const firebaseConfig = {
-            apiKey: "AIzaSyBb7kn8ySusHOzVBXzrmpZPeW2KGqVwx2M",
-            authDomain: "fanatica-de-la-belleza.firebaseapp.com",
-            projectId: "fanatica-de-la-belleza",
-            storageBucket: "fanatica-de-la-belleza.firebasestorage.app",
-            messagingSenderId: "863839901377",
-            appId: "1:863839901377:web:da03743136a9ef5817e640",
-            measurementId: "G-J99C9DVLL8",
-            databaseURL: "https://fanatica-de-la-belleza-default-rtdb.firebaseio.com"
+            apiKey: "TU_API_KEY",
+            authDomain: "TU_DOMINIO.firebaseapp.com",
+            projectId: "TU_PROJECT_ID",
+            storageBucket: "TU_STORAGE.appspot.com",
+            messagingSenderId: "TU_SENDER",
+            appId: "TU_APP_ID"
         };
-
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        const auth = firebase.auth(); 
-
-        const WHATSAPP_NUMBER = "584120661842";
-        const TASA_DEFAULT = 660.00;
-        let tasaVES = TASA_DEFAULT;
-        let isComingSoon = false;
-        let comingSoonVideoBase64 = "";
+        const auth = firebase.auth();
 
         let products = [];
-        let bag = []; 
-        let orders = [];
-        let currentCategory = 'Todas';
+        let categories = new Set();
+        let cart = [];
+        let currentFilter = 'Todo';
 
         function initApp() {
-            db.ref('tasaVES').on('value', (snapshot) => {
-                if(snapshot.exists()) {
-                    tasaVES = snapshot.val();
-                    document.getElementById('tasa-input').value = tasaVES;
-                    filterProducts(); updateBagUI();
-                }
-            });
-
-            db.ref('productsDB').on('value', (snapshot) => {
-                if(snapshot.exists()) { products = snapshot.val() || []; }
-                extractAndRenderCategories();
-                filterProducts(); 
-                renderAdminInventory();
-            });
-
-            db.ref('ordersDB').on('value', (snapshot) => {
-                if(snapshot.exists()) {
-                    orders = snapshot.val() || [];
-                    renderAdminOrders();
-                }
-            });
-
-            db.ref('settings').on('value', (snapshot) => {
-                if(snapshot.exists()) {
-                    const settings = snapshot.val();
-                    isComingSoon = settings.csMode === true;
-                    document.getElementById('cs-toggle').checked = isComingSoon;
-                    comingSoonVideoBase64 = settings.csVideo || "";
-                    applyAppMode();
-                }
-            });
-
-            renderTips(); updateBagUI();
+            loadProducts();
+            listenForOrders();
         }
 
-        /* =========================================
-           LÓGICA DE IMPRESIÓN NATIVA 
-           ========================================= */
-        function triggerNativePrint(order) {
-            // Llenar datos de la factura
-            document.getElementById('print-order-id').innerText = `PEDIDO #${order.id}`;
-            document.getElementById('print-client-name').innerText = order.client;
-            document.getElementById('print-client-phone').innerText = `Teléfono: ${order.phone}`;
-            document.getElementById('print-date').innerText = `Fecha de emisión: ${order.date}`;
-            
-            let totalUSDOriginal = 0;
-            if (order.itemsList && order.itemsList.length > 0) {
-                order.itemsList.forEach(item => totalUSDOriginal += (item.priceUSD * item.quantity));
-            }
-            const impliedTasa = totalUSDOriginal > 0 ? (order.total / totalUSDOriginal) : tasaVES;
+        function enterWebsite() {
+            document.getElementById('coming-soon-screen').style.display = 'none';
+        }
 
-            let itemsHtml = "";
-            let totalBsCalculado = 0;
+        function loadProducts() {
+            db.ref('products').on('value', (snapshot) => {
+                products = [];
+                categories.clear();
+                const data = snapshot.val();
+                if(data) {
+                    Object.keys(data).forEach(key => {
+                        products.push({id: key, ...data[key]});
+                        if(data[key].categoria) categories.add(data[key].categoria);
+                    });
+                }
+                renderCategories();
+                renderProducts();
+                if(document.getElementById('admin-overlay').style.display === 'block') renderAdminInventory();
+            });
+        }
+
+        function renderCategories() {
+            const list = document.getElementById('category-list');
+            list.innerHTML = `<button class="cat-btn ${currentFilter === 'Todo' ? 'active' : ''}" onclick="filterCategory('Todo')">Todos los Productos</button>`;
+            categories.forEach(cat => {
+                list.innerHTML += `<button class="cat-btn ${currentFilter === cat ? 'active' : ''}" onclick="filterCategory('${cat}')">${cat}</button>`;
+            });
+        }
+
+        function filterCategory(cat) {
+            currentFilter = cat;
+            renderCategories();
+            renderProducts();
+        }
+
+        function renderProducts() {
+            const container = document.getElementById('product-container');
+            container.innerHTML = '';
             
-            order.itemsList.forEach(item => {
-                let precioUnidadBs = item.priceUSD * impliedTasa;
-                let itemTotalBs = precioUnidadBs * item.quantity;
-                totalBsCalculado += itemTotalBs;
-                
-                itemsHtml += `
-                    <tr>
-                        <td class="col-desc">${item.name}</td>
-                        <td class="col-qty">${item.quantity}</td>
-                        <td class="col-price">${precioUnidadBs.toLocaleString('es-VE', {minimumFractionDigits: 2})}</td>
-                        <td class="col-total">${itemTotalBs.toLocaleString('es-VE', {minimumFractionDigits: 2})}</td>
-                    </tr>
+            const filtered = currentFilter === 'Todo' ? products : products.filter(p => p.categoria === currentFilter);
+            
+            filtered.forEach(p => {
+                const isOut = p.stock <= 0;
+                container.innerHTML += `
+                    <div class="product-card">
+                        ${isOut ? '<span class="badge-status">Agotado</span>' : ''}
+                        <div class="img-container ${isOut ? 'out-of-stock' : ''}">
+                            <img src="${p.img || 'https://via.placeholder.com/300x300?text=Fanatica'}" alt="${p.nombre}">
+                        </div>
+                        <h3 style="font-family: 'Playfair Display'; font-size: 1.4rem; margin-bottom: 5px;">${p.nombre}</h3>
+                        <p style="color: #888; font-size: 0.85rem;">Ref: ${p.referencia || 'N/A'}</p>
+                        <p style="color: var(--fucsia); font-size: 1.5rem; font-weight: bold; margin: 15px 0;">$${parseFloat(p.precio).toFixed(2)}</p>
+                        <button class="btn-luxury" style="width: 100%;" onclick="addToCart('${p.id}')" ${isOut ? 'disabled' : ''}>
+                            ${isOut ? 'Sin Stock' : 'Agregar a la Bolsa'}
+                        </button>
+                    </div>
                 `;
             });
+        }
+
+        function toggleCart() {
+            document.getElementById('side-bag').classList.toggle('open');
+        }
+
+        function addToCart(id) {
+            const prod = products.find(p => p.id === id);
+            if(!prod || prod.stock <= 0) return;
             
-            document.getElementById('print-items-body').innerHTML = itemsHtml;
-            document.getElementById('print-subtotal').innerText = `${totalBsCalculado.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs`;
-            document.getElementById('print-total').innerText = `${totalBsCalculado.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs`;
-
-            // Llamar al motor de impresión del sistema
-            window.print();
-        }
-
-        function generateInvoiceFromAdmin(orderId) {
-            const order = orders.find(o => o.id === orderId);
-            if(order) {
-                triggerNativePrint(order);
+            const exist = cart.find(c => c.id === id);
+            if(exist) {
+                if(exist.qty < prod.stock) exist.qty++;
+                else alert("Stock máximo alcanzado");
+            } else {
+                cart.push({...prod, qty: 1});
             }
+            updateCart();
+            document.getElementById('side-bag').classList.add('open');
         }
 
-        function openCheckout() {
-            if(bag.length === 0) { alert("Tu bolsa está vacía. Selecciona productos primero."); return; }
-            toggleBag(); 
-            document.getElementById('checkout-overlay').style.display = 'flex';
-        }
-
-        function closeCheckout() { document.getElementById('checkout-overlay').style.display = 'none'; }
-
-        function processOrder() {
-            try {
-                const name = document.getElementById('c-name').value.trim();
-                const lastName = document.getElementById('c-lastname').value.trim();
-                const phone = document.getElementById('c-phone').value.trim();
-                const btnProcess = document.getElementById('btn-process-order');
-
-                if(!name || !lastName || !phone) { alert("Por favor, completa todos los datos requeridos."); return; }
-
-                btnProcess.innerText = "PROCESANDO PEDIDO...";
-                btnProcess.disabled = true;
-
-                const orderID = "FB-" + Math.floor(1000 + Math.random() * 9000);
-                
-                let totalVES = 0;
-                let totalItemsCount = 0;
-                
-                bag.forEach(item => {
-                    const itemTotal = (item.priceUSD * tasaVES) * item.quantity;
-                    totalVES += itemTotal;
-                    totalItemsCount += item.quantity;
-                });
-
-                const newOrder = {
-                    id: orderID,
-                    date: new Date().toLocaleDateString(),
-                    client: `${name} ${lastName}`,
-                    phone: phone,
-                    total: totalVES,
-                    items: totalItemsCount,
-                    itemsList: [...bag] 
-                };
-                
-                // Guardamos en la Base de Datos
-                orders.unshift(newOrder); 
-                db.ref('ordersDB').set(orders); 
-
-                // Ejecutamos la impresión de la nueva factura NATIVA
-                triggerNativePrint(newOrder);
-
-                const totalString = totalVES.toLocaleString('es-VE', {minimumFractionDigits: 2});
-                const message = `¡Hola Fanática! 🦋 Soy ${name} ${lastName}.\nAcabo de realizar un pedido en la web.\n\n*Pedido:* #${orderID}\n*Total:* ${totalString} Bs\n\nTe envío mi factura (o el número de pedido) para concretar el pago. ¡Gracias!`;
-                const waLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
-
-                // Le damos 1.5 segundos para que la ventana de impresión cargue sin interrumpir
-                setTimeout(() => {
-                    bag = []; updateBagUI();
-                    document.getElementById('c-name').value = ""; document.getElementById('c-lastname').value = ""; document.getElementById('c-phone').value = "";
-                    closeCheckout();
-                    btnProcess.innerText = "GENERAR PEDIDO";
-                    btnProcess.disabled = false;
-                    
-                    window.open(waLink, '_blank');
-                }, 1500);
-
-            } catch (error) {
-                console.error("Error al procesar el pedido:", error);
-                alert("Ocurrió un error al generar el pedido. Intenta nuevamente.");
-                document.getElementById('btn-process-order').innerText = "GENERAR PEDIDO";
-                document.getElementById('btn-process-order').disabled = false;
-            }
-        }
-
-        function renderAdminOrders() {
-            const list = document.getElementById('admin-orders-list');
-            list.innerHTML = "";
-            if(orders.length === 0) { list.innerHTML = "<p style='color:#666;'>No hay pedidos registrados aún.</p>"; return; }
-
-            let html = "";
-            orders.forEach((ord) => {
-                let itemsHtml = "<p style='margin:0;'>Detalles no disponibles para este pedido antiguo.</p>";
-                if(ord.itemsList && ord.itemsList.length > 0) {
-                    itemsHtml = ord.itemsList.map(item => `
-                        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-                            <span>• ${item.name} <span style="font-size:0.8rem; color:#888;">(x${item.quantity})</span></span>
-                            <span style="color:var(--fucsia); font-weight:bold;">$${(item.priceUSD * item.quantity).toFixed(2)}</span>
-                        </div>
-                    `).join('');
-                }
-
-                html += `
-                    <div class="order-card" id="order-card-${ord.id}">
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <div>
-                                <div class="order-id">#${ord.id} <span style="font-size:0.8rem; color:#888;">(${ord.date})</span></div>
-                                <div style="color:#ddd; font-weight:bold;">${ord.client}</div>
-                                <div style="color:#888; font-size:0.9rem;">Tel: ${ord.phone} • Total Piezas: ${ord.items}</div>
+        function updateCart() {
+            const container = document.getElementById('cart-items');
+            container.innerHTML = '';
+            let total = 0;
+            let count = 0;
+            
+            cart.forEach(c => {
+                total += c.precio * c.qty;
+                count += c.qty;
+                container.innerHTML += `
+                    <div style="display: flex; gap: 15px; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
+                        <img src="${c.img || 'https://via.placeholder.com/80'}" style="width: 80px; height: 80px; border-radius: 12px; object-fit: cover;">
+                        <div style="flex: 1;">
+                            <h4 style="margin-bottom: 5px; font-family: 'Playfair Display';">${c.nombre}</h4>
+                            <p style="color: var(--fucsia); font-weight: bold;">$${parseFloat(c.precio).toFixed(2)}</p>
+                            <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px;">
+                                <button class="qty-btn" onclick="changeQty('${c.id}', -1)">-</button>
+                                <span>${c.qty}</span>
+                                <button class="qty-btn" onclick="changeQty('${c.id}', 1)">+</button>
                             </div>
-                            <div style="text-align:right;">
-                                <div style="color:var(--fucsia); font-weight:bold; font-size:1.3rem; margin-bottom:10px;">${ord.total.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs</div>
-                                <button class="action-btn btn-detail" onclick="toggleOrderDetails('${ord.id}')">Ver <i class="fa-solid fa-chevron-down"></i></button>
-                                <button class="action-btn btn-pdf" onclick="generateInvoiceFromAdmin('${ord.id}')">Imprimir</button>
-                                <button class="action-btn btn-del" onclick="deleteOrderById('${ord.id}')">Eliminar</button>
-                            </div>
-                        </div>
-                        
-                        <div id="order-details-${ord.id}" style="display:none; margin-top:20px; padding-top:15px; border-top:1px dashed #444; font-size:0.9rem; color:#ccc;">
-                            <p style="color:white; font-weight:bold; margin-bottom:15px;">Productos solicitados:</p>
-                            ${itemsHtml}
                         </div>
                     </div>
                 `;
             });
-            list.innerHTML = html;
+            
+            document.getElementById('cart-counter').innerText = count;
+            document.getElementById('cart-total').innerText = `$${total.toFixed(2)}`;
         }
 
-        function toggleOrderDetails(id) {
-            const detailsDiv = document.getElementById(`order-details-${id}`);
-            detailsDiv.style.display = (detailsDiv.style.display === "none") ? "block" : "none";
-        }
-
-        function deleteOrderById(id) {
-            if(confirm("¿Estás seguro que deseas eliminar definitivamente este pedido?")) {
-                orders = orders.filter(o => o.id !== id);
-                db.ref('ordersDB').set(orders); 
+        function changeQty(id, delta) {
+            const item = cart.find(c => c.id === id);
+            const prod = products.find(p => p.id === id);
+            if(item) {
+                item.qty += delta;
+                if(item.qty > prod.stock) { item.qty = prod.stock; alert("Stock máximo"); }
+                if(item.qty <= 0) cart = cart.filter(c => c.id !== id);
+                updateCart();
             }
         }
 
-        function toggleBag() { document.getElementById('side-bag').classList.toggle('open'); }
-        
-        function addToBag(id) {
-            const p = products.find(x => x.id === id);
-            if(p && p.stock) {
-                const existingItem = bag.find(item => item.id === id);
-                if(existingItem) { existingItem.quantity += 1; } else { bag.push({ ...p, quantity: 1 }); }
-                updateBagUI();
-                const badge = document.getElementById('count-badge');
-                badge.style.transform = "scale(1.6)"; setTimeout(() => badge.style.transform = "scale(1)", 300);
-            }
+        function openCheckout() {
+            if(cart.length === 0) return alert("Tu bolsa está vacía.");
+            document.getElementById('checkout-overlay').style.display = 'flex';
         }
 
-        function changeBagQuantity(idx, amount) {
-            bag[idx].quantity += amount;
-            if (bag[idx].quantity <= 0) { bag.splice(idx, 1); }
-            updateBagUI();
+        function closeCheckout() {
+            document.getElementById('checkout-overlay').style.display = 'none';
         }
 
-        function removeBagItem(idx) { bag.splice(idx, 1); updateBagUI(); }
-
-        function updateBagUI() {
-            const container = document.getElementById('bag-items');
-            let totalItemsCount = 0; let totalVES = 0; let html = "";
-            bag.forEach((it, idx) => {
-                totalItemsCount += it.quantity;
-                const itemVES = (it.priceUSD * tasaVES) * it.quantity; 
-                totalVES += itemVES;
-                html += `
-                    <div style="display:flex; justify-content:space-between; margin-bottom:15px; background:#f9f9f9; padding:20px; border-radius:15px; border-left: 4px solid var(--fucsia);">
-                        <div>
-                            <p style="font-weight:600; font-size:1rem; margin-bottom:5px;">${it.name}</p>
-                            <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
-                                <button class="qty-btn" onclick="changeBagQuantity(${idx}, -1)">-</button>
-                                <span style="font-weight:bold; font-size:0.9rem;">x${it.quantity}</span>
-                                <button class="qty-btn" onclick="changeBagQuantity(${idx}, 1)">+</button>
-                            </div>
-                            <p style="color:var(--fucsia); font-weight:bold;">${itemVES.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs</p>
-                        </div>
-                        <i class="fa-solid fa-trash-can" style="color:#ccc; cursor:pointer; font-size:1.2rem; align-self:center;" onclick="removeBagItem(${idx})"></i>
-                    </div>`;
-            });
-            container.innerHTML = html;
-            document.getElementById('count-badge').innerText = totalItemsCount;
-            document.getElementById('bag-total-bs').innerText = totalVES.toLocaleString('es-VE', { minimumFractionDigits: 2 }) + " Bs";
-            if(bag.length === 0) { container.innerHTML = '<p style="text-align:center; color:#999; margin-top:50px;">Tu bolsa espera por algo especial.</p>'; }
-        }
-
-        function applyAppMode() {
-            const mainWeb = document.getElementById('main-website');
-            const csScreen = document.getElementById('coming-soon-screen');
-            const videoTag = document.getElementById('cs-video-bg');
-            if(isComingSoon) {
-                mainWeb.style.display = 'none'; csScreen.style.display = 'flex';
-                if(comingSoonVideoBase64) { videoTag.src = comingSoonVideoBase64; } else if (!videoTag.src.includes('proximamente.mp4')) { videoTag.src = 'proximamente.mp4'; }
-                videoTag.play().catch(e => console.log("Auto-play prevenido", e));
-            } else { mainWeb.style.display = 'block'; csScreen.style.display = 'none'; videoTag.pause(); }
-        }
-
-        function saveComingSoonSettings() {
-            const toggle = document.getElementById('cs-toggle').checked;
-            const videoFile = document.getElementById('cs-video-input').files[0];
-            if(videoFile) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    comingSoonVideoBase64 = e.target.result;
-                    db.ref('settings').set({ csMode: toggle, csVideo: comingSoonVideoBase64 }).then(() => alert("Modo Próximamente actualizado.")).catch(() => alert("Error: El video es demasiado pesado."));
-                };
-                reader.readAsDataURL(videoFile);
-            } else { db.ref('settings').set({ csMode: toggle, csVideo: comingSoonVideoBase64 }).then(() => alert("Modo Próximamente actualizado.")); }
-        }
-
-        function saveTasa() { tasaVES = parseFloat(document.getElementById('tasa-input').value) || TASA_DEFAULT; db.ref('tasaVES').set(tasaVES); alert(`Tasa actualizada a ${tasaVES.toFixed(2)} Bs.`); }
-
-        function extractAndRenderCategories() {
-            const list = document.getElementById('category-list');
-            if(!list) return;
-
-            const cats = new Set();
-            products.forEach(p => {
-                if(p.category && p.category.trim() !== "") {
-                    cats.add(p.category.trim());
-                } else {
-                    cats.add("General");
-                }
-            });
-
-            const catArray = Array.from(cats).sort();
+        function processOrder() {
+            const name = document.getElementById('client-name').value;
+            const phone = document.getElementById('client-phone').value;
+            if(!name || !phone) return alert("Por favor completa tus datos.");
             
-            let html = `<button class="cat-btn ${currentCategory === 'Todas' ? 'active' : ''}" onclick="selectCategory('Todas')">Todas</button>`;
+            let total = cart.reduce((acc, c) => acc + (c.precio * c.qty), 0);
             
-            catArray.forEach(c => {
-                const isActive = currentCategory === c ? 'active' : '';
-                html += `<button class="cat-btn ${isActive}" onclick="selectCategory('${c}')">${c}</button>`;
-            });
-
-            list.innerHTML = html;
-        }
-
-        function selectCategory(cat) {
-            currentCategory = cat;
-            extractAndRenderCategories();
-            filterProducts(); 
-        }
-
-        function filterProducts() {
-            const query = document.getElementById('searchInput');
-            let text = "";
-            if(query) text = query.value.toLowerCase().trim();
-            
-            let filtered = products;
-
-            if(currentCategory !== 'Todas') {
-                filtered = filtered.filter(p => {
-                    const pCat = p.category && p.category.trim() !== "" ? p.category.trim() : "General";
-                    return pCat === currentCategory;
+            const orderRef = db.ref('orders').push();
+            orderRef.set({
+                cliente: name,
+                telefono: phone,
+                items: cart,
+                total: total,
+                fecha: new Date().toLocaleString()
+            }).then(() => {
+                cart.forEach(c => {
+                    const stockRef = db.ref(`products/${c.id}/stock`);
+                    stockRef.once('value').then(snap => {
+                        let currentStock = snap.val();
+                        stockRef.set(currentStock - c.qty);
+                    });
                 });
-            }
-
-            if(text) {
-                filtered = filtered.filter(p => 
-                    (p.name && p.name.toLowerCase().includes(text)) || 
-                    (p.code && p.code.toLowerCase().includes(text))
-                );
-            }
-
-            renderStore(filtered);
-        }
-
-        function renderStore(dataToRender = products) {
-            const grid = document.getElementById('store-grid'); 
-            let html = "";
-            
-            if(dataToRender.length === 0) {
-                grid.innerHTML = "<p style='color:#999; text-align:center; grid-column: 1 / -1; margin-top: 50px;'>No se encontraron productos en esta sección.</p>";
-                return;
-            }
-
-            dataToRender.forEach(p => {
-                const priceBs = (p.priceUSD * tasaVES).toLocaleString('es-VE', { minimumFractionDigits: 2 });
-                html += `
-                    <div class="product-card ${!p.stock ? 'out-of-stock' : ''}">
-                        ${!p.stock ? '<span class="badge-status">AGOTADO</span>' : ''}
-                        <div class="img-container">${p.img ? `<img src="${p.img}" loading="lazy" alt="${p.name}">` : `<i class="fa-solid fa-gem" style="font-size:4rem; color:#eee;"></i>`}</div>
-                        <h3 style="font-family:'Playfair Display'; font-size:1.6rem;">${p.name}</h3>
-                        <p style="color:var(--fucsia); font-weight:700; margin:15px 0; font-size:1.6rem;">${priceBs} Bs</p>
-                        <button class="btn-luxury" ${!p.stock ? 'disabled' : ''} onclick="addToBag(${p.id})">${p.stock ? 'AÑADIR A BOLSA' : 'SIN EXISTENCIA'}</button>
-                    </div>`;
+                cart = [];
+                updateCart();
+                closeCheckout();
+                toggleCart();
+                alert("¡Pedido realizado con éxito!");
             });
-            grid.innerHTML = html;
         }
 
-        function saveProduct() {
-            const id = document.getElementById('edit-id').value;
-            const name = document.getElementById('p-name').value;
-            const price = parseFloat(document.getElementById('p-price').value);
-            const code = document.getElementById('p-code').value;
-            const category = document.getElementById('p-category').value;
-            const stock = document.getElementById('p-stock').value === "true";
-            const fileInput = document.getElementById('p-img');
-
-            if(!name || !price || !code) { alert("Completa nombre, precio y código."); return; }
-            const executeSave = (imgBase64 = null) => {
-                if(id) {
-                    const index = products.findIndex(p => p.id == id);
-                    products[index] = { ...products[index], name, priceUSD: price, code, stock, category: category || "General" };
-                    if(imgBase64) products[index].img = imgBase64;
-                } else { products.push({ id: Date.now(), name, priceUSD: price, code, stock, category: category || "General", img: imgBase64 || "" }); }
-                db.ref('productsDB').set(products).then(() => clearForm());
-            };
-            if(fileInput.files[0]) { const r = new FileReader(); r.onload = (e) => executeSave(e.target.result); r.readAsDataURL(fileInput.files[0]); } else { executeSave(); }
-        }
-
+        /* ================== FUNCIONES DEL ADMIN (MODIFICADAS) ================== */
+        
         function renderAdminInventory() {
-            const list = document.getElementById('admin-inventory-list'); 
-            let html = "";
+            const tbody = document.getElementById('admin-inventory');
+            tbody.innerHTML = '';
             products.forEach(p => {
-                const thumb = p.img ? `<img src="${p.img}" loading="lazy" style="width:40px; height:40px; border-radius:8px; object-fit:cover;">` : `<i class="fa-solid fa-image" style="color:#555; font-size:1.5rem;"></i>`;
-                html += `
-                    <tr><td>${thumb}</td><td style="font-weight:bold;">${p.name}<br><span style="color:#888; font-size:0.8rem;">${p.code} - ${p.category || 'General'}</span></td>
-                    <td style="color:#00ff00; font-weight:bold;">$${p.priceUSD.toFixed(2)}</td><td>${p.stock ? '🟢 Stock' : '🔴 Agotado'}</td>
-                    <td><button class="action-btn btn-edit" onclick="editProduct(${p.id})">Editar</button><button class="action-btn btn-del" onclick="deleteProduct(${p.id})">Borrar</button></td></tr>`;
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${p.referencia || 'N/A'}</td>
+                        <td style="font-weight: bold; color: white;">${p.nombre}</td>
+                        <td style="color: var(--fucsia);">$${parseFloat(p.precio).toFixed(2)}</td>
+                        <td>${p.stock}</td>
+                        <td>${p.categoria}</td>
+                        <td>
+                            <button class="action-btn btn-del" onclick="deleteProduct('${p.id}')">Borrar</button>
+                        </td>
+                    </tr>
+                `;
             });
-            list.innerHTML = html;
         }
 
-        function processBulkUpload() {
-            const fileInput = document.getElementById('bulk-upload-file'); const file = fileInput.files[0];
-            if(!file) { alert("Por favor, selecciona un archivo CSV."); return; }
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const text = e.target.result; const delimiter = text.indexOf(';') > -1 ? ';' : ','; const lines = text.split(/\r?\n/);
-                if(lines.length < 2) { alert("El archivo está vacío o no tiene formato correcto."); return; }
-                const headers = lines[0].split(delimiter).map(h => h.trim().toLowerCase());
-                
-                const nameIdx = headers.indexOf('name') > -1 ? headers.indexOf('name') : headers.indexOf('nombre');
-                const priceIdx = headers.findIndex(h => h.includes('price') || h.includes('precio'));
-                const codeIdx = headers.indexOf('code') > -1 ? headers.indexOf('code') : headers.indexOf('codigo');
-                const stockIdx = headers.indexOf('stock');
-                const catIdx = headers.indexOf('categoria') > -1 ? headers.indexOf('categoria') : headers.indexOf('category');
-                const imgIdx = headers.indexOf('imagen') > -1 ? headers.indexOf('imagen') : headers.indexOf('img');
+        function addProduct() {
+            const name = document.getElementById('new-name').value;
+            const ref = document.getElementById('new-ref').value; // Nueva constante de Referencia
+            const price = parseFloat(document.getElementById('new-price').value);
+            const stock = parseInt(document.getElementById('new-stock').value);
+            const cat = document.getElementById('new-cat').value;
+            const img = document.getElementById('new-img').value;
 
-                if(nameIdx === -1 || priceIdx === -1) { alert("El CSV debe contener 'name' (o nombre) y 'price' (o precio)."); return; }
+            if(!name || !ref || !price || isNaN(stock) || !cat) {
+                return alert("Completa todos los campos obligatorios, incluyendo la Referencia.");
+            }
+
+            // VALIDACIÓN: Comprobar si la referencia ya existe
+            const exists = products.find(p => p.referencia === ref);
+            if(exists) {
+                return alert(`Error: Ya existe un producto con la referencia ${ref}.`);
+            }
+
+            db.ref('products').push({
+                nombre: name,
+                referencia: ref,
+                precio: price,
+                stock: stock,
+                categoria: cat,
+                img: img
+            }).then(() => {
+                alert("Producto agregado.");
+                document.getElementById('new-name').value = '';
+                document.getElementById('new-ref').value = '';
+                document.getElementById('new-price').value = '';
+                document.getElementById('new-stock').value = '';
+                document.getElementById('new-img').value = '';
+            });
+        }
+
+        function bulkUpload() {
+            const jsonText = document.getElementById('bulk-json').value;
+            try {
+                const items = JSON.parse(jsonText);
+                if(!Array.isArray(items)) throw new Error();
                 
-                let newProducts = []; let timestamp = Date.now();
-                
-                for(let i=1; i<lines.length; i++) {
-                    if(!lines[i].trim()) continue;
-                    const cols = lines[i].split(delimiter);
-                    const pName = cols[nameIdx] ? cols[nameIdx].trim() : "Producto Sin Nombre";
-                    const pPrice = parseFloat(cols[priceIdx]) || 0;
-                    const pCode = (codeIdx !== -1 && cols[codeIdx]) ? cols[codeIdx].trim() : `BULK-${timestamp + i}`;
-                    const pCat = (catIdx !== -1 && cols[catIdx]) ? cols[catIdx].trim() : "General";
-                    const pImg = (imgIdx !== -1 && cols[imgIdx]) ? cols[imgIdx].trim() : "";
-                    
-                    let pStock = true;
-                    if(stockIdx !== -1 && cols[stockIdx]) {
-                        const sVal = cols[stockIdx].trim().toLowerCase();
-                        pStock = (sVal === 'true' || sVal === '1' || sVal === 'si' || sVal === 'yes' || sVal === 'disponible');
+                let successCount = 0;
+                let skipCount = 0;
+
+                items.forEach(item => {
+                    // Validar cada item
+                    if(item.nombre && item.referencia && item.precio && item.stock && item.categoria) {
+                        // VALIDACIÓN: Comprobar si la referencia ya existe
+                        const exists = products.find(p => p.referencia === item.referencia);
+                        if(exists) {
+                            console.log(`Omitiendo: Referencia duplicada - ${item.referencia}`);
+                            skipCount++;
+                        } else {
+                            db.ref('products').push({
+                                nombre: item.nombre,
+                                referencia: item.referencia,
+                                precio: parseFloat(item.precio),
+                                stock: parseInt(item.stock),
+                                categoria: item.categoria,
+                                img: item.img || ''
+                            });
+                            successCount++;
+                        }
                     }
-                    newProducts.push({ id: timestamp + i, name: pName, priceUSD: pPrice, code: pCode, stock: pStock, category: pCat, img: pImg });
-                }
+                });
                 
-                if(newProducts.length > 0) {
-                    const mergedProducts = products.concat(newProducts); fileInput.disabled = true;
-                    db.ref('productsDB').set(mergedProducts).then(() => { alert(`¡Carga masiva exitosa! Se añadieron ${newProducts.length} productos.`); fileInput.value = ""; fileInput.disabled = false; })
-                    .catch(err => { alert("Error al subir: " + err.message); fileInput.disabled = false; });
-                } else { alert("No se encontraron productos válidos."); }
-            };
-            reader.readAsText(file);
+                alert(`Carga completada. \nExitosos: ${successCount} \nOmitidos (Duplicados): ${skipCount}`);
+                document.getElementById('bulk-json').value = '';
+                
+            } catch(e) {
+                alert("Formato JSON inválido. Asegúrate de incluir 'nombre', 'referencia', 'precio', 'stock' y 'categoria'.");
+            }
         }
 
-        function editProduct(id) {
-            const p = products.find(x => x.id == id);
-            document.getElementById('edit-id').value = p.id; document.getElementById('p-name').value = p.name;
-            document.getElementById('p-price').value = p.priceUSD; document.getElementById('p-code').value = p.code;
-            document.getElementById('p-category').value = p.category || "";
-            document.getElementById('p-stock').value = p.stock.toString(); document.getElementById('form-title').innerText = "Editando: " + p.name;
-            document.getElementById('btn-save').innerText = "ACTUALIZAR PRODUCTO"; document.getElementById('btn-cancel').style.display = "block";
-            window.scrollTo(0, document.getElementById('form-title').offsetTop);
+        function deleteProduct(id) {
+            if(confirm("¿Seguro que deseas eliminar este producto?")) {
+                db.ref(`products/${id}`).remove();
+            }
         }
 
-        function clearForm() {
-            document.getElementById('edit-id').value = ""; document.getElementById('p-name').value = ""; document.getElementById('p-price').value = "";
-            document.getElementById('p-code').value = ""; document.getElementById('p-category').value = ""; document.getElementById('p-img').value = ""; document.getElementById('form-title').innerText = "Crear Producto";
-            document.getElementById('btn-save').innerText = "GUARDAR PRODUCTO"; document.getElementById('btn-cancel').style.display = "none";
+        function listenForOrders() {
+            db.ref('orders').on('value', snap => {
+                const data = snap.val();
+                const container = document.getElementById('admin-orders');
+                container.innerHTML = '';
+                if(data) {
+                    const keys = Object.keys(data).reverse(); // Mas recientes primero
+                    keys.forEach(k => {
+                        const o = data[k];
+                        let itemsHtml = o.items.map(i => `${i.qty}x ${i.nombre} ($${(i.precio * i.qty).toFixed(2)})`).join('<br>');
+                        container.innerHTML += `
+                            <div class="order-card">
+                                <div class="order-id">Pedido: ${k.substring(1,8)}</div>
+                                <p><strong>Cliente:</strong> ${o.cliente}</p>
+                                <p><strong>Teléfono:</strong> ${o.telefono}</p>
+                                <p><strong>Fecha:</strong> ${o.fecha}</p>
+                                <div style="margin: 10px 0; padding: 10px; background: #000; border-radius: 8px;">
+                                    ${itemsHtml}
+                                </div>
+                                <p style="color: var(--fucsia); font-size: 1.2rem; font-weight: bold; text-align: right;">Total: $${parseFloat(o.total).toFixed(2)}</p>
+                                <div style="text-align: right; margin-top: 10px;">
+                                    <button class="action-btn btn-pdf" onclick='printInvoiceNative(${JSON.stringify(o)}, "${k}")'>Imprimir Factura</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+            });
         }
 
-        function deleteProduct(id) { if(confirm("¿Eliminar este producto?")) { products = products.filter(p => p.id !== id); db.ref('productsDB').set(products); } }
+        /* ================== IMPRESIÓN NATIVA ================== */
+        function printInvoiceNative(orderData, orderId) {
+            // Rellenar datos de cabecera
+            document.getElementById("print-order-id").innerText = "Pedido: #" + orderId.substring(1, 8);
+            document.getElementById("print-date").innerText = "Fecha: " + orderData.fecha;
+            document.getElementById("print-client-name").innerText = orderData.cliente;
+            document.getElementById("print-client-phone").innerText = orderData.telefono;
+            
+            // Rellenar tabla de items
+            const tbody = document.getElementById("print-items");
+            tbody.innerHTML = "";
+            let subtotal = 0;
 
-        function renderTips() {
-            const tips = [
-                { i: "fa-faucet-drip", t: "Lienzo Limpio", p: "Jamás apliques maquillaje sobre residuos del día anterior." },
-                { i: "fa-droplet", t: "Hidratación Previa", p: "Espera tras tu crema hidratante antes de aplicar la base." },
-                { i: "fa-wand-magic-sparkles", t: "Primer Específico", p: "Usa primers según tu tipo de piel para un acabado perfecto." },
-                { i: "fa-face-shimmer", t: "Efecto Glow", p: "Mezcla aceite facial con tu base mate para luminosidad." },
-                { i: "fa-palette", t: "Corrector de Color", p: "Naranja cancela ojeras; verde neutraliza rojeces." },
-                { i: "fa-paint-roller", t: "Aplicación de Base", p: "Aplica del centro hacia afuera para evitar el efecto 'máscara'." },
-                { i: "fa-sponge", t: "Esponja Húmeda", p: "Usa la esponja húmeda para un acabado natural." },
-                { i: "fa-cloud", t: "Sellado Ligero", p: "Usa polvo traslúcido para matificar sin acartonar." },
-                { i: "fa-lips", t: "Labios Mate", p: "Exfolia e hidrata tus labios antes de un labial mate." },
-                { i: "fa-brush", t: "Higiene de Brochas", p: "Lava tus herramientas regularmente para evitar bacterias." }
-            ];
-            const cont = document.getElementById('dynamic-tips'); let html = "";
-            [...tips].sort(() => 0.5 - Math.random()).slice(0, 3).forEach(t => { html += `<div class="tip-card"><i class="fa-solid ${t.i}"></i><h4>${t.t}</h4><p style="color:#666;">${t.p}</p></div>`; });
-            cont.innerHTML = html;
+            orderData.items.forEach(item => {
+                const itemTotal = item.qty * item.precio;
+                subtotal += itemTotal;
+                
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td class="col-desc" style="color: var(--magenta); font-weight: 500;">
+                        ${item.nombre}
+                    </td>
+                    <td class="col-qty">${item.qty}</td>
+                    <td class="col-price">$${item.precio.toFixed(2)}</td>
+                    <td class="col-total">$${itemTotal.toFixed(2)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Rellenar totales
+            document.getElementById("print-subtotal").innerText = "$" + subtotal.toFixed(2);
+            document.getElementById("print-total").innerText = "$" + parseFloat(orderData.total).toFixed(2);
+
+            // Disparar el diálogo de impresión del navegador
+            setTimeout(() => {
+                window.print();
+            }, 300);
         }
 
+        /* ================== EVENTOS DE LOGIN ================== */
         function loginAdmin() {
-            auth.signInWithEmailAndPassword(document.getElementById('admin-email').value, document.getElementById('admin-pass').value)
-                .then(() => { document.getElementById('login-overlay').style.display = 'none'; document.getElementById('admin-overlay').style.display = 'block'; document.getElementById('admin-pass').value = ''; })
+            const e = document.getElementById('admin-email').value;
+            const p = document.getElementById('admin-pass').value;
+            auth.signInWithEmailAndPassword(e, p)
+                .then(() => { 
+                    document.getElementById('login-overlay').style.display = 'none'; 
+                    document.getElementById('admin-overlay').style.display = 'block'; 
+                    document.getElementById('admin-pass').value = ''; 
+                })
                 .catch((error) => { alert("Credenciales incorrectas. Acceso denegado."); console.error("Error de login:", error.message); });
         }
 
