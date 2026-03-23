@@ -22,6 +22,8 @@
             --gray-light: #f8f9fa;
             --text-dark: #333;
             --text-muted: #666;
+            --magenta: #e6007e;
+            --magenta-light: #fff0f7;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -67,17 +69,17 @@
         #checkout-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
             background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); z-index: 3000;
-            align-items: center; justify-content: center;
+            align-items: center; justify-content: center; overflow-y: auto; padding: 20px;
         }
         .checkout-box {
-            background: white; padding: 40px; border-radius: 25px; width: 90%; max-width: 400px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.2); text-align: center;
+            background: white; padding: 35px 40px; border-radius: 25px; width: 100%; max-width: 450px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2); text-align: center; margin: auto;
         }
         .checkout-input {
             width: 100%; padding: 15px; margin-bottom: 15px; border: 1px solid #ddd;
-            border-radius: 12px; font-family: 'Outfit'; font-size: 0.95rem; outline: none; background: #fdfdfd;
+            border-radius: 12px; font-family: 'Outfit'; font-size: 0.95rem; outline: none; background: #fdfdfd; transition: 0.3s;
         }
-        .checkout-input:focus { border-color: var(--fucsia); }
+        .checkout-input:focus { border-color: var(--fucsia); background: white; box-shadow: 0 0 10px rgba(230,0,126,0.1);}
 
         /* --- TIPS Y PRODUCTOS --- */
         .tips-section { padding: 200px 8% 40px; text-align: center; }
@@ -189,7 +191,7 @@
         }
 
         /* =========================================
-           NUEVOS ESTILOS DE LA FACTURA (SCOPED Y PARA PRINT)
+           ESTILOS DE LA FACTURA NATIVA (SCOPED PARA PRINT)
            ========================================= */
         #invoice-print-area { display: none; }
         
@@ -344,6 +346,7 @@
                 <div class="details-box" style="text-align: right;">
                     <h3>Facturar a</h3>
                     <p><strong id="print-client-name">Nombre del Cliente</strong></p>
+                    <p id="print-client-cedula">Cédula/RIF: </p>
                     <p id="print-client-phone">Teléfono: </p>
                 </div>
             </div>
@@ -367,8 +370,8 @@
                     <span id="print-subtotal"></span>
                 </div>
                 <div class="total-row">
-                    <span>Descuento (0%):</span>
-                    <span>0,00 Bs</span>
+                    <span>Descuento:</span>
+                    <span id="print-discount">0,00 Bs</span>
                 </div>
                 <div class="total-row grand-total">
                     <span>TOTAL:</span>
@@ -395,16 +398,28 @@
 
     <div id="checkout-overlay">
         <div class="checkout-box">
-            <h2 style="font-family:'Playfair Display'; font-size:1.8rem; margin-bottom:10px;">Casi tuyo</h2>
+            <h2 style="font-family:'Playfair Display'; font-size:1.8rem; margin-bottom:5px;">Casi tuyo</h2>
             <p style="color:#666; font-size:0.9rem; margin-bottom:15px;">Ingresa tus datos para generar tu pedido y atenderte vía WhatsApp.</p>
-            <p style="color: var(--fucsia); font-size: 0.85rem; margin-bottom: 25px; font-weight: bold;"><i class="fa-solid fa-file-pdf"></i> Su factura se generará en pantalla lista para guardar como PDF o imprimir.</p>
             
+            <div style="display:flex; gap:10px; margin-bottom:10px;">
+                <input type="text" id="c-coupon" class="checkout-input" style="margin-bottom:0; font-size: 0.9rem;" placeholder="Si tienes un Cupón, ingrésalo aquí">
+                <button class="btn-luxury" style="padding:0 20px; font-size:0.8rem;" onclick="applyCoupon()">APLICAR</button>
+            </div>
+            <p id="coupon-msg" style="font-size:0.85rem; margin-bottom:20px; text-align: left; font-weight: 600;"></p>
+
             <input type="text" id="c-name" class="checkout-input" placeholder="Nombre">
             <input type="text" id="c-lastname" class="checkout-input" placeholder="Apellido">
+            <input type="text" id="c-cedula" class="checkout-input" placeholder="Cédula o RIF (Ej. V-12345678)">
             <input type="tel" id="c-phone" class="checkout-input" placeholder="Teléfono (Ej. 04121234567)">
             
+            <div style="margin-bottom: 20px; text-align: left; background: var(--magenta-light); padding: 15px; border-radius: 12px; border: 1px dashed var(--magenta);">
+                <div style="display:flex; justify-content:space-between; margin-bottom: 5px; color:#555; font-size: 0.95rem;"><span>Subtotal:</span> <span id="chk-subtotal">0.00 Bs</span></div>
+                <div style="display:flex; justify-content:space-between; margin-bottom: 5px; color: var(--fucsia); font-size: 0.95rem;"><span>Descuento <span id="chk-discount-percent"></span>:</span> <strong id="chk-discount">0.00 Bs</strong></div>
+                <div style="display:flex; justify-content:space-between; font-size: 1.25rem; font-weight:bold; border-top: 1px solid #ddd; padding-top: 10px; margin-top: 5px;"><span>TOTAL A PAGAR:</span> <span id="chk-total" style="color:var(--fucsia);">0.00 Bs</span></div>
+            </div>
+
             <button class="btn-luxury" style="width:100%; margin-bottom:15px;" onclick="processOrder()" id="btn-process-order">GENERAR PEDIDO</button>
-            <button onclick="closeCheckout()" style="background:none; border:none; color:#999; cursor:pointer; font-weight:bold;">Cancelar</button>
+            <button onclick="closeCheckout()" style="background:none; border:none; color:#999; cursor:pointer; font-weight:bold;">Volver atrás</button>
         </div>
     </div>
 
@@ -517,6 +532,15 @@
                     <button class="btn-luxury" style="background:white; color:var(--fucsia); width:100%; box-shadow:none;" onclick="saveTasa()">ACTUALIZAR PRECIOS</button>
                 </div>
 
+                <div class="admin-box" style="margin-top:30px; border-color: #333;">
+                    <h3 style="color: white; font-family: 'Playfair Display'; font-size: 1.5rem; margin-bottom: 10px;">Cupones Promocionales <i class="fa-solid fa-ticket" style="color:var(--fucsia);"></i></h3>
+                    <input type="text" id="cp-code" class="admin-inp" placeholder="Código (Ej. PROMO20)">
+                    <input type="number" id="cp-desc" class="admin-inp" placeholder="Descuento (%)">
+                    <input type="number" id="cp-uses" class="admin-inp" placeholder="Límite de Usos Disponibles">
+                    <button class="btn-luxury" style="width:100%; margin-bottom: 15px;" onclick="saveCoupon()">CREAR CUPÓN</button>
+                    <div id="admin-coupons-list" style="margin-top: 15px; max-height: 250px; overflow-y: auto;"></div>
+                </div>
+
                 <div class="admin-box" style="margin-top:30px;">
                     <h3 id="form-title">Crear Producto</h3>
                     <input type="hidden" id="edit-id">
@@ -589,9 +613,14 @@
         let products = [];
         let bag = []; 
         let orders = [];
+        let coupons = [];
+        let activeCoupon = null; // Cupón aplicado por el cliente
         let currentCategory = 'Todas';
 
         function initApp() {
+            // Recuperamos el carrito si el cliente cerró la pestaña
+            loadBagFromLocal();
+
             db.ref('tasaVES').on('value', (snapshot) => {
                 if(snapshot.exists()) {
                     tasaVES = snapshot.val();
@@ -614,6 +643,12 @@
                 }
             });
 
+            // Escuchador del módulo de cupones
+            db.ref('couponsDB').on('value', (snapshot) => {
+                if(snapshot.exists()) { coupons = snapshot.val() || []; } else { coupons = []; }
+                renderAdminCoupons();
+            });
+
             db.ref('settings').on('value', (snapshot) => {
                 if(snapshot.exists()) {
                     const settings = snapshot.val();
@@ -624,7 +659,28 @@
                 }
             });
 
-            renderTips(); updateBagUI();
+            renderTips();
+        }
+
+        /* =========================================
+           MEMORIA LOCAL (LOCALSTORAGE DEL CARRITO)
+           ========================================= */
+        function saveBagToLocal() {
+            localStorage.setItem('fanatica_bag', JSON.stringify(bag));
+        }
+
+        function loadBagFromLocal() {
+            const saved = localStorage.getItem('fanatica_bag');
+            if(saved) {
+                bag = JSON.parse(saved);
+                updateBagUI();
+            }
+        }
+
+        function clearLocalBag() {
+            localStorage.removeItem('fanatica_bag');
+            bag = [];
+            updateBagUI();
         }
 
         /* =========================================
@@ -634,21 +690,24 @@
             document.getElementById('print-order-id').innerText = `#${order.id}`;
             document.getElementById('print-date').innerText = `Fecha: ${order.date}`;
             document.getElementById('print-client-name').innerText = order.client;
+            document.getElementById('print-client-cedula').innerText = `Cédula/RIF: ${order.cedula || 'N/A'}`;
             document.getElementById('print-client-phone').innerText = `Teléfono: ${order.phone}`;
             
             let totalUSDOriginal = 0;
             if (order.itemsList && order.itemsList.length > 0) {
                 order.itemsList.forEach(item => totalUSDOriginal += (item.priceUSD * item.quantity));
             }
-            const impliedTasa = totalUSDOriginal > 0 ? (order.total / totalUSDOriginal) : tasaVES;
+            // Si el pedido tiene descuento, recalculamos en base al subtotal original de ese momento
+            const subtotalOldVES = order.total + (order.discountAmountVES || 0);
+            const impliedTasa = totalUSDOriginal > 0 ? (subtotalOldVES / totalUSDOriginal) : tasaVES;
 
             let itemsHtml = "";
-            let totalBsCalculado = 0;
+            let subtotalBsCalculado = 0;
             
             order.itemsList.forEach(item => {
                 let precioUnidadBs = item.priceUSD * impliedTasa;
                 let itemTotalBs = precioUnidadBs * item.quantity;
-                totalBsCalculado += itemTotalBs;
+                subtotalBsCalculado += itemTotalBs;
                 
                 itemsHtml += `
                     <tr>
@@ -661,22 +720,109 @@
             });
             
             document.getElementById('print-items-body').innerHTML = itemsHtml;
-            document.getElementById('print-subtotal').innerText = `${totalBsCalculado.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs`;
-            document.getElementById('print-total').innerText = `${totalBsCalculado.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs`;
+            document.getElementById('print-subtotal').innerText = `${subtotalBsCalculado.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs`;
+            
+            let discountHtml = "0,00 Bs";
+            if(order.discountPercent && order.discountAmountVES) {
+                discountHtml = `-${order.discountAmountVES.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs (${order.discountPercent}%)`;
+            }
+            document.getElementById('print-discount').innerText = discountHtml;
+            document.getElementById('print-total').innerText = `${order.total.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs`;
 
             window.print();
         }
 
         function generateInvoiceFromAdmin(orderId) {
             const order = orders.find(o => o.id === orderId);
-            if(order) {
-                triggerNativePrint(order);
+            if(order) { triggerNativePrint(order); }
+        }
+
+        /* =========================================
+           SISTEMA DE CUPONES Y CHECKOUT
+           ========================================= */
+        function saveCoupon() {
+            const code = document.getElementById('cp-code').value.trim().toUpperCase();
+            const desc = parseFloat(document.getElementById('cp-desc').value);
+            const uses = parseInt(document.getElementById('cp-uses').value);
+            
+            if(!code || !desc || !uses) return alert("Por favor, completa todos los campos para crear el cupón.");
+            if(desc <= 0 || desc > 100) return alert("El porcentaje de descuento debe ser entre 1 y 100.");
+            
+            const exists = coupons.findIndex(c => c.code === code);
+            if(exists !== -1) { coupons[exists] = {code, desc, uses}; } 
+            else { coupons.push({code, desc, uses}); }
+            
+            db.ref('couponsDB').set(coupons);
+            document.getElementById('cp-code').value = ""; document.getElementById('cp-desc').value = ""; document.getElementById('cp-uses').value = "";
+        }
+
+        function deleteCoupon(code) {
+            coupons = coupons.filter(c => c.code !== code);
+            db.ref('couponsDB').set(coupons);
+        }
+
+        function renderAdminCoupons() {
+            let html = "";
+            coupons.forEach(c => {
+                html += `
+                <div style="display:flex; justify-content:space-between; align-items:center; background:#222; padding:12px; border-radius:8px; margin-bottom:8px;">
+                    <div>
+                        <span style="color:var(--fucsia); font-weight:bold; font-size:1.1rem;">${c.code}</span> 
+                        <span style="color:#28a745; font-weight:bold;">(-${c.desc}%)</span> <br>
+                        <span style="font-size:0.8rem; color:#888;">Usos restantes: ${c.uses}</span>
+                    </div>
+                    <button class="action-btn btn-del" onclick="deleteCoupon('${c.code}')">Borrar</button>
+                </div>`;
+            });
+            document.getElementById('admin-coupons-list').innerHTML = html || "<p style='color:#666; font-size:0.9rem;'>No hay cupones activos.</p>";
+        }
+
+        function applyCoupon() {
+            const code = document.getElementById('c-coupon').value.trim().toUpperCase();
+            const msgEl = document.getElementById('coupon-msg');
+            if(!code) return;
+
+            const found = coupons.find(c => c.code === code && c.uses > 0);
+            if(found) {
+                activeCoupon = found;
+                msgEl.style.color = "#28a745";
+                msgEl.innerText = `¡Cupón de ${found.desc}% aplicado con éxito!`;
+                updateCheckoutTotals();
+            } else {
+                activeCoupon = null;
+                msgEl.style.color = "#ff4757";
+                msgEl.innerText = "Cupón inválido, vencido o agotado.";
+                updateCheckoutTotals();
             }
+        }
+
+        function updateCheckoutTotals() {
+            let subtotalVES = 0;
+            bag.forEach(item => { subtotalVES += (item.priceUSD * tasaVES) * item.quantity; });
+            
+            let discountVES = 0;
+            let discountPercent = 0;
+            
+            if(activeCoupon) {
+                discountPercent = activeCoupon.desc;
+                discountVES = subtotalVES * (discountPercent / 100);
+            }
+            
+            const finalTotal = subtotalVES - discountVES;
+
+            document.getElementById('chk-subtotal').innerText = `${subtotalVES.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs`;
+            document.getElementById('chk-discount-percent').innerText = activeCoupon ? `(${discountPercent}%)` : ``;
+            document.getElementById('chk-discount').innerText = `-${discountVES.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs`;
+            document.getElementById('chk-total').innerText = `${finalTotal.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs`;
         }
 
         function openCheckout() {
             if(bag.length === 0) { alert("Tu bolsa está vacía. Selecciona productos primero."); return; }
             toggleBag(); 
+            activeCoupon = null;
+            document.getElementById('c-coupon').value = "";
+            document.getElementById('coupon-msg').innerText = "";
+            updateCheckoutTotals();
             document.getElementById('checkout-overlay').style.display = 'flex';
         }
 
@@ -686,31 +832,50 @@
             try {
                 const name = document.getElementById('c-name').value.trim();
                 const lastName = document.getElementById('c-lastname').value.trim();
+                const cedula = document.getElementById('c-cedula').value.trim();
                 const phone = document.getElementById('c-phone').value.trim();
                 const btnProcess = document.getElementById('btn-process-order');
 
-                if(!name || !lastName || !phone) { alert("Por favor, completa todos los datos requeridos."); return; }
+                if(!name || !lastName || !cedula || !phone) { alert("Por favor, completa todos los datos requeridos, incluyendo la cédula."); return; }
 
                 btnProcess.innerText = "PROCESANDO PEDIDO...";
                 btnProcess.disabled = true;
 
                 const orderID = "FB-" + Math.floor(1000 + Math.random() * 9000);
                 
-                let totalVES = 0;
+                let subtotalVES = 0;
                 let totalItemsCount = 0;
                 
                 bag.forEach(item => {
-                    const itemTotal = (item.priceUSD * tasaVES) * item.quantity;
-                    totalVES += itemTotal;
+                    subtotalVES += (item.priceUSD * tasaVES) * item.quantity;
                     totalItemsCount += item.quantity;
                 });
+
+                let discountVES = 0;
+                let discountPercent = 0;
+                if(activeCoupon) {
+                    discountPercent = activeCoupon.desc;
+                    discountVES = subtotalVES * (discountPercent / 100);
+                    
+                    // Restar un uso al cupón en la base de datos
+                    const cIndex = coupons.findIndex(c => c.code === activeCoupon.code);
+                    if(cIndex !== -1) {
+                        coupons[cIndex].uses -= 1;
+                        db.ref('couponsDB').set(coupons);
+                    }
+                }
+
+                const finalTotal = subtotalVES - discountVES;
 
                 const newOrder = {
                     id: orderID,
                     date: new Date().toLocaleDateString(),
                     client: `${name} ${lastName}`,
+                    cedula: cedula,
                     phone: phone,
-                    total: totalVES,
+                    total: finalTotal,
+                    discountPercent: discountPercent,
+                    discountAmountVES: discountVES,
                     items: totalItemsCount,
                     itemsList: [...bag] 
                 };
@@ -720,12 +885,16 @@
 
                 triggerNativePrint(newOrder);
 
-                const message = `Hola Fanatica de la belleza, soy *${name} ${lastName}*, este es el numero de mi pedido "*#${orderID}*", quedo atento/a para pagar`;
+                const totalString = finalTotal.toLocaleString('es-VE', {minimumFractionDigits: 2});
+                const promoString = activeCoupon ? `\n🎁 *¡Descuento del ${discountPercent}% aplicado!*` : "";
+                
+                const message = `Hola Fanatica de la belleza, soy *${name} ${lastName}* (C.I: ${cedula}), este es el numero de mi pedido "*#${orderID}*".\nEl total a pagar es de: *${totalString} Bs*${promoString}\n\nQuedo atento/a para enviar el pago.`;
                 const waLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 
                 setTimeout(() => {
-                    bag = []; updateBagUI();
-                    document.getElementById('c-name').value = ""; document.getElementById('c-lastname').value = ""; document.getElementById('c-phone').value = "";
+                    // Borramos carrito y liberamos memory local porque la orden ya fue exitosa
+                    clearLocalBag(); 
+                    document.getElementById('c-name').value = ""; document.getElementById('c-lastname').value = ""; document.getElementById('c-cedula').value = ""; document.getElementById('c-phone').value = "";
                     closeCheckout();
                     
                     btnProcess.innerText = "GENERAR PEDIDO";
@@ -759,12 +928,14 @@
                     `).join('');
                 }
 
+                const discBadge = (ord.discountPercent && ord.discountPercent > 0) ? `<span style="background:var(--fucsia); color:white; padding:2px 8px; border-radius:10px; font-size:0.7rem;">-${ord.discountPercent}% CUPÓN</span>` : "";
+
                 html += `
                     <div class="order-card" id="order-card-${ord.id}">
                         <div style="display:flex; justify-content:space-between; align-items:center;">
                             <div>
-                                <div class="order-id">#${ord.id} <span style="font-size:0.8rem; color:#888;">(${ord.date})</span></div>
-                                <div style="color:#ddd; font-weight:bold;">${ord.client}</div>
+                                <div class="order-id">#${ord.id} <span style="font-size:0.8rem; color:#888;">(${ord.date})</span> ${discBadge}</div>
+                                <div style="color:#ddd; font-weight:bold;">${ord.client} <span style="font-size:0.8rem; font-weight:normal; color:#888;">(C.I: ${ord.cedula || 'N/A'})</span></div>
                                 <div style="color:#888; font-size:0.9rem;">Tel: ${ord.phone} • Total Piezas: ${ord.items}</div>
                             </div>
                             <div style="text-align:right;">
@@ -804,6 +975,7 @@
             if(p && p.stock) {
                 const existingItem = bag.find(item => item.id === id);
                 if(existingItem) { existingItem.quantity += 1; } else { bag.push({ ...p, quantity: 1 }); }
+                saveBagToLocal(); // Auto-guardado
                 updateBagUI();
                 const badge = document.getElementById('count-badge');
                 badge.style.transform = "scale(1.6)"; setTimeout(() => badge.style.transform = "scale(1)", 300);
@@ -813,10 +985,15 @@
         function changeBagQuantity(idx, amount) {
             bag[idx].quantity += amount;
             if (bag[idx].quantity <= 0) { bag.splice(idx, 1); }
+            saveBagToLocal(); // Auto-guardado
             updateBagUI();
         }
 
-        function removeBagItem(idx) { bag.splice(idx, 1); updateBagUI(); }
+        function removeBagItem(idx) { 
+            bag.splice(idx, 1); 
+            saveBagToLocal(); // Auto-guardado
+            updateBagUI(); 
+        }
 
         function updateBagUI() {
             const container = document.getElementById('bag-items');
