@@ -7,8 +7,6 @@
     <link rel="icon" href="index.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
         :root {
@@ -20,11 +18,10 @@
             --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             
             /* Variables de la nueva factura */
-            --magenta: #e6007e;
-            --magenta-light: #fff0f7;
-            --text-dark: #2c3e50;
-            --text-muted: #7f8c8d;
-            --border: #f0f0f0;
+            --pink-main: #e6007e; 
+            --gray-light: #f8f9fa;
+            --text-dark: #333;
+            --text-muted: #666;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -192,53 +189,130 @@
         }
 
         /* =========================================
-           ESTILOS DE LA NUEVA FACTURA (BLINDADA PARA EL PDF)
+           NUEVOS ESTILOS DE LA FACTURA (SCOPED Y PARA PRINT)
            ========================================= */
-        #invoice-print-area { 
-            position: absolute; 
-            left: -9999px; 
-            top: 0; 
-            width: 800px !important; /* Bloqueado para que el móvil no lo aplaste */
-            background: white; 
-            z-index: -1; /* Oculto por defecto */
-        }
+        #invoice-print-area { display: none; }
         
-        .factura-container {
+        .invoice-card {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 40px;
+            border-radius: 8px;
+            color: var(--text-dark);
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            width: 800px !important; /* Bloqueado para siempre */
-            background: white; 
-            padding: 50px;
-            color: var(--text-dark); 
-            position: relative;
-            box-sizing: border-box;
         }
-        .factura-container::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 10px; background: linear-gradient(90deg, var(--magenta), #ff66b2); }
-        
-        .inv-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 50px; }
-        .brand-box { display: flex; flex-direction: column; gap: 10px; }
-        .logo-letras { height: 70px; width: auto; object-fit: contain; }
-        .logo-icono { height: 100px; opacity: 0.1; position: absolute; right: 20px; top: 40px; transform: rotate(-15deg); }
-        .invoice-title { text-align: right; }
-        .invoice-title h1 { margin: 0; color: var(--magenta); font-size: 2.2em; letter-spacing: -1px; text-transform: uppercase; }
-        
-        .info-grid { display: flex; justify-content: space-between; gap: 40px; margin-bottom: 40px; padding: 25px; background-color: var(--magenta-light); border-radius: 12px; box-sizing: border-box; }
-        .info-block { width: 50%; }
-        .info-block h4 { margin: 0 0 10px 0; text-transform: uppercase; font-size: 0.85em; color: var(--magenta); letter-spacing: 1px; }
-        .info-block p { margin: 0; line-height: 1.5; font-size: 0.95em; }
-        
-        .inv-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
-        .inv-table th { text-align: left; padding: 15px; border-bottom: 2px solid var(--magenta); color: var(--text-dark); font-size: 0.9em; text-transform: uppercase; }
-        .inv-table td { padding: 18px 15px; border-bottom: 1px solid var(--border); font-size: 1em; }
-        .col-desc { width: 50%; } .col-qty { width: 10%; text-align: center; } .col-price { width: 20%; text-align: right; } .col-total { width: 20%; text-align: right; font-weight: 600; }
-        
-        .summary-container { display: flex; justify-content: flex-end; }
-        .summary-box { width: 250px; }
-        .summary-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
-        .summary-row.grand-total { border-bottom: none; color: var(--magenta); font-size: 1.5em; font-weight: bold; margin-top: 10px; }
-        
-        .inv-footer { margin-top: 50px; padding-top: 30px; border-top: 1px solid var(--border); text-align: center; }
-        .inv-footer p { color: var(--text-muted); font-size: 0.9em; margin: 5px 0; }
-        .stamp { display: inline-block; margin-top: 20px; padding: 10px 20px; border: 2px dashed #ddd; border-radius: 8px; color: #ddd; font-weight: bold; transform: rotate(-5deg); }
+
+        .invoice-card .inv-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--gray-light);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .invoice-card .logo-container img {
+            max-height: 60px;
+        }
+
+        .invoice-card .order-info {
+            text-align: right;
+        }
+
+        .invoice-card .order-info h1 {
+            margin: 0;
+            color: var(--pink-main);
+            font-size: 24px;
+            text-transform: uppercase;
+        }
+
+        .invoice-card .order-number {
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .invoice-card .details-section {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+        }
+
+        .invoice-card .details-box h3 {
+            font-size: 14px;
+            color: var(--pink-main);
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .invoice-card .details-box p {
+            margin: 3px 0;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .invoice-card table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            color: var(--text-dark);
+        }
+
+        .invoice-card th {
+            background-color: var(--gray-light);
+            text-align: left;
+            padding: 12px;
+            font-size: 14px;
+            color: var(--text-muted);
+            border-bottom: none;
+        }
+
+        .invoice-card td {
+            padding: 15px 12px;
+            border-bottom: 1px solid #eee;
+            font-size: 15px;
+        }
+
+        .invoice-card .text-right { text-align: right; }
+
+        .invoice-card .totals {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .invoice-card .total-row {
+            display: flex;
+            width: 250px;
+            justify-content: space-between;
+            padding: 5px 0;
+        }
+
+        .invoice-card .total-row.grand-total {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 2px solid var(--pink-main);
+            font-weight: bold;
+            font-size: 1.2em;
+            color: var(--pink-main);
+        }
+
+        .invoice-card .inv-footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-muted);
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+
+        @media print {
+            body > *:not(#invoice-print-area) { display: none !important; }
+            #invoice-print-area { display: block !important; width: 100%; margin: 0; padding: 0; }
+            body { background: white; padding: 0; margin: 0; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            .invoice-card { padding: 20px; box-shadow: none; border-radius: 0; max-width: 100%; }
+        }
     </style>
 
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
@@ -248,68 +322,63 @@
 <body onload="initApp()">
 
     <div id="invoice-print-area">
-        <div class="factura-container">
-            <img src="Logo-Fanaticadelabelleza.png" alt="" class="logo-icono">
+        <div class="invoice-card">
             <div class="inv-header">
-                <div class="brand-box">
-                    <img src="logo f.png" alt="Fanática de la Belleza" class="logo-letras">
-                    <p style="margin:0; font-size: 0.85em; color: var(--text-muted);">RIF: J-40536612-5</p>
+                <div class="logo-container">
+                    <img src="logo f.png" alt="Fanática de la Belleza">
                 </div>
-                <div class="invoice-title">
-                    <h1>FACTURA</h1>
-                    <p id="print-order-id" style="margin:5px 0 0 0; color: var(--text-muted); font-weight: bold;">PEDIDO #</p>
+                <div class="order-info">
+                    <h1>Factura</h1>
+                    <p>Pedido: <span class="order-number" id="print-order-id">#FB-XXXX</span></p>
+                    <p id="print-date">Fecha: </p>
                 </div>
             </div>
 
-            <div class="info-grid">
-                <div class="info-block">
-                    <h4>Emitido por:</h4>
+            <div class="details-section">
+                <div class="details-box">
+                    <h3>Emitido por</h3>
                     <p><strong>Fanática de la Belleza</strong></p>
-                    <p>Casco central, Maracaibo, Venezuela.</p>
-                    <p>Tel: 0412-0661842</p>
+                    <p>Maracaibo, Venezuela</p>
+                    <p>Whatsapp: +58 412-0661842</p>
                 </div>
-                <div class="info-block" style="border-left: 1px solid rgba(230,0,126,0.1); padding-left: 40px; box-sizing: border-box;">
-                    <h4>Facturado a:</h4>
+                <div class="details-box" style="text-align: right;">
+                    <h3>Facturar a</h3>
                     <p><strong id="print-client-name">Nombre del Cliente</strong></p>
                     <p id="print-client-phone">Teléfono: </p>
-                    <p id="print-date">Fecha de emisión: </p>
                 </div>
             </div>
 
-            <table class="inv-table">
+            <table>
                 <thead>
                     <tr>
-                        <th class="col-desc">Descripción</th>
-                        <th class="col-qty">Cant.</th>
-                        <th class="col-price">Precio (Bs)</th>
-                        <th class="col-total">Total (Bs)</th>
+                        <th>Descripción</th>
+                        <th class="text-right">Cant.</th>
+                        <th class="text-right">Precio Unit. (Bs)</th>
+                        <th class="text-right">Total (Bs)</th>
                     </tr>
                 </thead>
                 <tbody id="print-items-body">
                     </tbody>
             </table>
 
-            <div class="summary-container">
-                <div class="summary-box">
-                    <div class="summary-row">
-                        <span>Sub-Total</span>
-                        <span id="print-subtotal"></span>
-                    </div>
-                    <div class="summary-row">
-                        <span>Descuento</span>
-                        <span>0,00 Bs</span>
-                    </div>
-                    <div class="summary-row grand-total">
-                        <span>TOTAL</span>
-                        <span id="print-total"></span>
-                    </div>
+            <div class="totals">
+                <div class="total-row">
+                    <span>Subtotal:</span>
+                    <span id="print-subtotal"></span>
+                </div>
+                <div class="total-row">
+                    <span>Descuento (0%):</span>
+                    <span>0,00 Bs</span>
+                </div>
+                <div class="total-row grand-total">
+                    <span>TOTAL:</span>
+                    <span id="print-total"></span>
                 </div>
             </div>
 
             <div class="inv-footer">
-                <p>¡Gracias por tu confianza! Eres nuestra prioridad.</p>
-                <p><em>La factura física será entregada por la empresa.</em></p>
-                <div class="stamp">DOCUMENTO DIGITAL</div>
+                <p>¡Gracias por resaltar tu belleza con nosotros!</p>
+                <p>Esta factura fue generada digitalmente por <strong>Fanática de la Belleza</strong>.</p>
             </div>
         </div>
     </div>
@@ -328,7 +397,7 @@
         <div class="checkout-box">
             <h2 style="font-family:'Playfair Display'; font-size:1.8rem; margin-bottom:10px;">Casi tuyo</h2>
             <p style="color:#666; font-size:0.9rem; margin-bottom:15px;">Ingresa tus datos para generar tu pedido y atenderte vía WhatsApp.</p>
-            <p style="color: var(--fucsia); font-size: 0.85rem; margin-bottom: 25px; font-weight: bold;"><i class="fa-solid fa-file-pdf"></i> Su factura se guardará en pdf automáticamente en su dispositivo.</p>
+            <p style="color: var(--fucsia); font-size: 0.85rem; margin-bottom: 25px; font-weight: bold;"><i class="fa-solid fa-file-pdf"></i> Su factura se generará en pantalla lista para guardar como PDF o imprimir.</p>
             
             <input type="text" id="c-name" class="checkout-input" placeholder="Nombre">
             <input type="text" id="c-lastname" class="checkout-input" placeholder="Apellido">
@@ -559,13 +628,13 @@
         }
 
         /* =========================================
-           LÓGICA BLINDADA PARA PDF EN MÓVILES
+           LÓGICA NATIVA PARA IMPRIMIR LA NUEVA FACTURA
            ========================================= */
-        async function generateAndDownloadInvoice(order) {
-            document.getElementById('print-order-id').innerText = `PEDIDO #${order.id}`;
+        function triggerNativePrint(order) {
+            document.getElementById('print-order-id').innerText = `#${order.id}`;
+            document.getElementById('print-date').innerText = `Fecha: ${order.date}`;
             document.getElementById('print-client-name').innerText = order.client;
             document.getElementById('print-client-phone').innerText = `Teléfono: ${order.phone}`;
-            document.getElementById('print-date').innerText = `Fecha de emisión: ${order.date}`;
             
             let totalUSDOriginal = 0;
             if (order.itemsList && order.itemsList.length > 0) {
@@ -583,10 +652,10 @@
                 
                 itemsHtml += `
                     <tr>
-                        <td class="col-desc">${item.name}</td>
-                        <td class="col-qty">${item.quantity}</td>
-                        <td class="col-price">${precioUnidadBs.toLocaleString('es-VE', {minimumFractionDigits: 2})}</td>
-                        <td class="col-total">${itemTotalBs.toLocaleString('es-VE', {minimumFractionDigits: 2})}</td>
+                        <td>${item.name}</td>
+                        <td class="text-right">${item.quantity}</td>
+                        <td class="text-right">${precioUnidadBs.toLocaleString('es-VE', {minimumFractionDigits: 2})}</td>
+                        <td class="text-right">${itemTotalBs.toLocaleString('es-VE', {minimumFractionDigits: 2})}</td>
                     </tr>
                 `;
             });
@@ -595,38 +664,13 @@
             document.getElementById('print-subtotal').innerText = `${totalBsCalculado.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs`;
             document.getElementById('print-total').innerText = `${totalBsCalculado.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs`;
 
-            const element = document.getElementById('invoice-print-area');
-            const originalOverflow = document.body.style.overflowX;
-            
-            document.body.style.overflowX = 'visible';
-            element.style.position = 'absolute';
-            element.style.left = '0';
-            element.style.top = '0';
-            element.style.zIndex = '2999';
-
-            const opt = {
-                margin:       10, 
-                filename:     `Factura_${order.id}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, windowWidth: 800 },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
-            try {
-                await html2pdf().set(opt).from(element).save();
-            } catch(e) {
-                console.error("Error generando PDF:", e);
-            } finally {
-                element.style.left = '-9999px';
-                element.style.zIndex = '-1';
-                document.body.style.overflowX = originalOverflow || 'hidden';
-            }
+            window.print();
         }
 
         function generateInvoiceFromAdmin(orderId) {
             const order = orders.find(o => o.id === orderId);
             if(order) {
-                generateAndDownloadInvoice(order);
+                triggerNativePrint(order);
             }
         }
 
@@ -638,7 +682,7 @@
 
         function closeCheckout() { document.getElementById('checkout-overlay').style.display = 'none'; }
 
-        async function processOrder() {
+        function processOrder() {
             try {
                 const name = document.getElementById('c-name').value.trim();
                 const lastName = document.getElementById('c-lastname').value.trim();
@@ -674,19 +718,22 @@
                 orders.unshift(newOrder); 
                 db.ref('ordersDB').set(orders); 
 
-                await generateAndDownloadInvoice(newOrder);
+                triggerNativePrint(newOrder);
 
                 const message = `Hola Fanatica de la belleza, soy *${name} ${lastName}*, este es el numero de mi pedido "*#${orderID}*", quedo atento/a para pagar`;
                 const waLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 
-                bag = []; updateBagUI();
-                document.getElementById('c-name').value = ""; document.getElementById('c-lastname').value = ""; document.getElementById('c-phone').value = "";
-                closeCheckout();
-                
-                btnProcess.innerText = "GENERAR PEDIDO";
-                btnProcess.disabled = false;
+                setTimeout(() => {
+                    bag = []; updateBagUI();
+                    document.getElementById('c-name').value = ""; document.getElementById('c-lastname').value = ""; document.getElementById('c-phone').value = "";
+                    closeCheckout();
+                    
+                    btnProcess.innerText = "GENERAR PEDIDO";
+                    btnProcess.disabled = false;
 
-                window.open(waLink, '_blank');
+                    window.open(waLink, '_blank');
+                }, 1500);
+
             } catch (error) {
                 console.error("Error al procesar el pedido:", error);
                 alert("Ocurrió un error al generar el pedido. Intenta nuevamente.");
@@ -723,7 +770,7 @@
                             <div style="text-align:right;">
                                 <div style="color:var(--fucsia); font-weight:bold; font-size:1.3rem; margin-bottom:10px;">${ord.total.toLocaleString('es-VE', {minimumFractionDigits: 2})} Bs</div>
                                 <button class="action-btn btn-detail" onclick="toggleOrderDetails('${ord.id}')">Ver <i class="fa-solid fa-chevron-down"></i></button>
-                                <button class="action-btn btn-pdf" onclick="generateInvoiceFromAdmin('${ord.id}')">Guardar PDF</button>
+                                <button class="action-btn btn-pdf" onclick="generateInvoiceFromAdmin('${ord.id}')">Imprimir / PDF</button>
                                 <button class="action-btn btn-del" onclick="deleteOrderById('${ord.id}')">Eliminar</button>
                             </div>
                         </div>
@@ -914,7 +961,6 @@
 
             if(!name || !price || !code) { alert("Completa nombre, precio y código."); return; }
             
-            // Validación estricta para evitar códigos duplicados en la base de datos
             const codeExists = products.some(p => p.code && p.code.toLowerCase() === code.toLowerCase() && p.id != id);
             if(codeExists) {
                 alert("Error: El código '" + code + "' ya está en uso. Por favor, asigna un código único a este producto.");
@@ -977,7 +1023,6 @@
                     const pCat = (catIdx !== -1 && cols[catIdx]) ? cols[catIdx].trim() : "General";
                     const pImg = (imgIdx !== -1 && cols[imgIdx]) ? cols[imgIdx].trim() : "";
                     
-                    // Verificación de códigos duplicados en la carga masiva
                     if(pCode) {
                         const codeExistsInDB = products.some(p => p.code && p.code.toLowerCase() === pCode.toLowerCase());
                         const codeExistsInNew = newProducts.some(p => p.code && p.code.toLowerCase() === pCode.toLowerCase());
@@ -997,7 +1042,7 @@
                 }
                 
                 if(hasDuplicates) {
-                    fileInput.value = ""; return; // Si hay error, se aborta y no se sube nada.
+                    fileInput.value = ""; return; 
                 }
                 
                 if(newProducts.length > 0) {
