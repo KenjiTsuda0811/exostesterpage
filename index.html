@@ -1250,23 +1250,57 @@
 
         function deleteProduct(id) { if(confirm("¿Eliminar este producto?")) { products = products.filter(p => p.id !== id); db.ref('productsDB').set(products); } }
 
-        function renderTips() {
-            const tips = [
-                { i: "fa-faucet-drip", t: "Lienzo Limpio", p: "Jamás apliques maquillaje sobre residuos del día anterior." },
-                { i: "fa-droplet", t: "Hidratación Previa", p: "Espera tras tu crema hidratante antes de aplicar la base." },
-                { i: "fa-wand-magic-sparkles", t: "Primer Específico", p: "Usa primers según tu tipo de piel para un acabado perfecto." },
-                { i: "fa-face-shimmer", t: "Efecto Glow", p: "Mezcla aceite facial con tu base mate para luminosidad." },
-                { i: "fa-palette", t: "Corrector de Color", p: "Naranja cancela ojeras; verde neutraliza rojeces." },
-                { i: "fa-paint-roller", t: "Aplicación de Base", p: "Aplica del centro hacia afuera para evitar el efecto 'máscara'." },
-                { i: "fa-sponge", t: "Esponja Húmeda", p: "Usa la esponja húmeda para un acabado natural." },
-                { i: "fa-cloud", t: "Sellado Ligero", p: "Usa polvo traslúcido para matificar sin acartonar." },
-                { i: "fa-lips", t: "Labios Mate", p: "Exfolia e hidrata tus labios antes de un labial mate." },
-                { i: "fa-brush", t: "Higiene de Brochas", p: "Lava tus herramientas regularmente para evitar bacterias." }
-            ];
-            const cont = document.getElementById('dynamic-tips'); let html = "";
-            [...tips].sort(() => 0.5 - Math.random()).slice(0, 3).forEach(t => { html += `<div class="tip-card"><i class="fa-solid ${t.i}"></i><h4>${t.t}</h4><p style="color:#666;">${t.p}</p></div>`; });
-            cont.innerHTML = html;
-        }
+  function renderTips() {
+    const tips = [
+        { i: "fa-faucet-drip", t: "Lienzo Limpio", p: "Jamás apliques maquillaje sobre residuos del día anterior." },
+        { i: "fa-droplet", t: "Hidratación Previa", p: "Espera tras tu crema hidratante antes de aplicar la base." },
+        { i: "fa-wand-magic-sparkles", t: "Primer Específico", p: "Usa primers según tu tipo de piel para un acabado perfecto." },
+        { i: "fa-face-shimmer", t: "Efecto Glow", p: "Mezcla aceite facial con tu base mate para luminosidad." },
+        { i: "fa-palette", t: "Corrector de Color", p: "Naranja cancela ojeras; verde neutraliza rojeces." },
+        { i: "fa-paint-roller", t: "Aplicación de Base", p: "Aplica del centro hacia afuera para evitar el efecto 'máscara'." },
+        { i: "fa-sponge", t: "Esponja Húmeda", p: "Usa la esponja húmeda para un acabado natural." },
+        { i: "fa-cloud", t: "Sellado Ligero", p: "Usa polvo traslúcido para matificar sin acartonar." },
+        { i: "fa-lips", t: "Labios Mate", p: "Exfolia e hidrata tus labios antes de un labial mate." },
+        { i: "fa-brush", t: "Higiene de Brochas", p: "Lava tus herramientas regularmente para evitar bacterias." },
+        { i: "fa-eye", t: "Mirada Despierta", p: "Aplica lápiz beige en la línea de agua para agrandar los ojos." },
+        { i: "fa-sun", t: "Protección Solar", p: "El bloqueador es el mejor primer antienvejecimiento del mundo." },
+        { i: "fa-wind", t: "Secado de Máscara", p: "No bombees el cepillo de rímel, solo introduces aire y bacterias." },
+        { i: "fa-spray-can", t: "Fijación Total", p: "Rocía fijador en tu esponja antes de difuminar el corrector." },
+        { i: "fa-scissors", t: "Pestañas Postizas", p: "Corta la tira de pestañas para que se ajuste al tamaño de tu ojo." },
+        { i: "fa-moon", t: "Rutina Nocturna", p: "La doble limpieza es clave para mantener poros libres de impurezas." },
+        { i: "fa-snowflake", t: "Delineador Suave", p: "Si tu lápiz está muy blando, mételo al congelador 5 minutos." },
+        { i: "fa-gem", t: "Iluminador Puntual", p: "Aplica en el arco de Cupido para dar volumen visual a los labios." },
+        { i: "fa-water", t: "Piel Jugosa", p: "Beber agua influye más en tu maquillaje que cualquier iluminador." },
+        { i: "fa-hand-sparkles", t: "Manos Limpias", p: "Si usas los dedos para la base, asegúrate de que estén impecables." },
+        { i: "fa-clock", t: "Paciencia", p: "Deja que el corrector se asiente 30 segundos antes de difuminar." },
+        { i: "fa-circle-half-stroke", t: "Contorno Natural", p: "Difumina el contorno siempre hacia arriba, nunca hacia abajo." },
+        { i: "fa-feather", t: "Cejas Orgánicas", p: "Peina tus cejas hacia arriba para un efecto lifting instantáneo." },
+        { i: "fa-bottle-water", t: "Agua Micelar", p: "Úsala con un bastoncillo para corregir el delineado con precisión." },
+        { i: "fa-heart", t: "Rubor Vital", p: "Sonríe al aplicar rubor para identificar 'las manzanas' de tus mejillas." },
+        { i: "fa-bolt", t: "Adiós Brillos", p: "Usa papelitos de arroz para quitar grasa sin mover el maquillaje." },
+        { i: "fa-eye-dropper", t: "Base Ligera", p: "Añade una gota de serum a tu base si quieres una cobertura natural." },
+        { i: "fa-sparkles", t: "Glitter Seguro", p: "Usa siempre pegamento especial para evitar que caiga dentro del ojo." },
+        { i: "fa-leaf", t: "Productos Orgánicos", p: "Revisa la fecha de caducidad; el maquillaje viejo irrita la piel." },
+        { i: "fa-compress", t: "Poros Invisibles", p: "Presiona el primer con los dedos en lugar de arrastrarlo." },
+        { i: "fa-lightbulb", t: "Luz Natural", p: "Si puedes, maquíllate cerca de una ventana para ver el color real." },
+        { i: "fa-mask", t: "Multimasking", p: "Usa diferentes mascarillas según la necesidad de cada zona del rostro." }
+    ];
+
+    const cont = document.getElementById('dynamic-tips');
+    let html = "";
+    
+    // Mezclamos y seleccionamos 3 al azar
+    [...tips].sort(() => 0.5 - Math.random()).slice(0, 3).forEach(t => {
+        html += `
+            <div class="tip-card">
+                <i class="fa-solid ${t.i}"></i>
+                <h4>${t.t}</h4>
+                <p style="color:#666;">${t.p}</p>
+            </div>`;
+    });
+
+    cont.innerHTML = html;
+}
 
         function loginAdmin() {
             auth.signInWithEmailAndPassword(document.getElementById('admin-email').value, document.getElementById('admin-pass').value)
